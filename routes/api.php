@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::resource('quan', 'App\Http\Controllers\Api\V1\QuanController')->only(['index','show']);
     Route::resource('san', 'App\Http\Controllers\Api\V1\SanController')->only(['index']);
-    Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['index']);
+    Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['index', 'store','show']);
+    Route::resource('users', 'App\Http\Controllers\Api\V1\UserController')->only(['show']);
+    Route::post('login', 'App\Http\Controllers\Api\V1\UserController@login')->name('login');
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {

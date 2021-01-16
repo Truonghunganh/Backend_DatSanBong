@@ -12,12 +12,9 @@ class DatSan extends Model
         'idsan',
         'iduser',
         'start_time',
-        'end_time',
-        'price'
-            
-        
+        'price'    
     ];
-
+    public $timestamps = false;
     protected $table = "datsans";
     public function San()
     {

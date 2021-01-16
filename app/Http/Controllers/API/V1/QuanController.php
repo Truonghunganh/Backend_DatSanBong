@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use Carbon\Carbon;
 use App\Models\Models\Quan;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\QuanService;
@@ -16,7 +17,7 @@ class QuanController extends Controller
     }
     public function index()
     {
-        try {
+       try {
             return response()->json([
                 'status' => true,
                 'code' => Response::HTTP_OK,
@@ -32,6 +33,7 @@ class QuanController extends Controller
     }
     public function show($id)
     {
+        
         try {
             $quan=$this->quanService->findById($id);
             if($quan){

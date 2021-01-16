@@ -21,7 +21,7 @@ class SanService
         return San::find($id);
     }
    
-    public function getSansByIdquanVaNgay($request)
+    public function getDatSansByIdquanVaNgay($request)
     {
         if ($request->get('idquan')) {
             $sanArray= San::query()->where('idquan', '=', $request->get('idquan'))->get();

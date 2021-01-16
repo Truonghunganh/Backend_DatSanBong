@@ -18,7 +18,6 @@ class CreateDatSansTable extends Migration
             $table->bigInteger('idsan');
             $table->bigInteger('iduser');
             $table->dateTime('start_time');
-            $table->dateTime('end_time');
             $table->bigInteger('price');
             
         });
