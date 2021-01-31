@@ -2,8 +2,13 @@
 
 namespace App\Services;
 
+use Tymon\JWTAuth\Facades\JWTAuth;
+//use JWTAuth;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Models\User;
+
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class UserService
 {
@@ -14,9 +19,65 @@ class UserService
         }
         return [];
     }
-    public function getUserById($id)
+    public function editUserByToken($request,$id)
     {
-        return DB::table('users')->where('id', $id)->get();
+        DB::update(
+        'update users set name=?,gmail=?,address=?,password=?,Create_time=? where id = ?',
+            [
+                $request->get('name'),
+                $request->get('gmail'),
+                $request->get('address'),
+                bcrypt($request->get('password')),
+                Carbon::now(), 
+                $id
+
+            ]
+        );
+        $user = User::where("id", "=", $id)->get();
+        if (count($user) > 0) {
+            $token = JWTAuth::fromUser($user[0]);
+            DB::update(
+                'update users set token = ? where phone = ?',
+                [$token, $request->get('phone')]
+            );
+            return $token;
+        }else {
+            return "id k có nên k có token";     
+        }
+      
     }
     
+    public function getTokenUser($request,$role){
+        return DB::table('users')->where('role', '=', $role)->where('phone', $request->get('phone'))->get()[0]->token;
+    }
+    public function registerUser($request){
+        if(count(DB::table('users')->where('phone',$request->get('phone')))==0){
+            return 1;
+        }
+        DB::insert(
+            'insert into users (name,phone,gmail,address,password,Create_time) values (?, ?,?, ?,?,?)', 
+        [
+            $request->get('name'),
+            $request->get('phone'),
+            $request->get('gmail'),
+            $request->get('address'),
+            bcrypt($request->get('password')),
+            Carbon::now()
+
+        ]);
+        $user = User::where("phone", "=", $request->get('phone'))->get();
+        if (count($user) > 0) {
+            $token = JWTAuth::fromUser($user[0]);
+            return DB::update(
+                'update users set token = ? where phone = ?',
+                [$token, $request->get('phone')]
+            );
+        }
+      
+    }
+    public  function getUser($request)
+    {
+        return User::where("phone", "=", $request->get('phone'))->get()[0];
+    }
+       
 }

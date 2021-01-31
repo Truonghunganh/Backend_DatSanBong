@@ -13,12 +13,17 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::prefix('v1')->group(function () {
     Route::resource('quan', 'App\Http\Controllers\Api\V1\QuanController')->only(['index','show']);
     Route::resource('san', 'App\Http\Controllers\Api\V1\SanController')->only(['index']);
-    Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['index', 'store','show']);
-    Route::resource('users', 'App\Http\Controllers\Api\V1\UserController')->only(['show']);
-    Route::post('login', 'App\Http\Controllers\Api\V1\UserController@login')->name('login');
+    Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['store']);
+    
+    Route::get('getListDatSanByUserToken', 'App\Http\Controllers\Api\V1\DatSanController@getListDatSanByUserToken');
+    Route::put('editUserByToken', 'App\Http\Controllers\Api\V1\UserController@editUserByToken');
+    
+    Route::post('loginUser', 'App\Http\Controllers\Api\V1\UserController@loginUser')->name('loginUser');
+    Route::get('checkTokenUser', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenUser');
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {

@@ -1,6 +1,6 @@
 1.	Tạo project : composer create-project --prefer-dist laravel/laravel blog
 2.	Node_modules : npm install
-3.	Php artisan make:controller Amin/UserController --resource : 
+3.	php artisan make:controller Amin/UserController --resource : 
 là tạo ra UserController có tất cả các phương thức ( là cái mẫu chuẩn cho laravel ) 
 
 4.	Create migration : php artisan make:migration +name
@@ -30,7 +30,7 @@ model:      php artisan make:model Models/nameModel
 seed:       php artisan make:seeder name
             factory: php artisan make:factory name
             run: php artisan db:seed --class=name
-
+ //"tymon/jwt-auth":"^1.0.0-rc.2"
 route:
 controller: php artisan make:controller API/V1/PromotionController
 validator for request: php artisan make:request --path name

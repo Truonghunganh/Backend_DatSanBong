@@ -15,7 +15,7 @@ class CreateSansTable extends Migration
             $table->integer('numberpeople');
             $table->boolean('tranhthai');
             $table->bigInteger('priceperhour');
-            
+            $table->dateTime('Create_time');
             
         });
     }

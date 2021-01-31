@@ -5,23 +5,38 @@ namespace App\Models\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 //use Illuminate\Database\Eloquent\Model;
 //use Illuminate\Foundation\Auth\User ;//as Authenticatable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Model implements Authenticatable 
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\Traits\StripePaymentBill;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class User extends Authenticatable implements JWTSubject 
+//class User extends Authenticatable 
 {
-    use \Illuminate\Auth\Authenticatable;
-    use HasFactory;
-    
-    use Notifiable;
-    protected $primaryKey = 'pass';
-    protected $fillable = [
-        'gmail',
-        'pass'       
-    ];
+//    use \Illuminate\Auth\Authenticatable;
 
+   //  use StripePaymentBill;
+    use Notifiable;
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+    protected $guarded = [];
+    protected $fillable = [
+        "role",
+        "phone",
+        "password",
+    ];
+    // protected $hidden = [
+    //     "password",
+    // ];
     protected $table = "users";
     public function San()
     {

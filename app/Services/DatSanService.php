@@ -3,12 +3,17 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use App\Services\CheckTokenService;
 
 use Illuminate\Support\Facades\DB;
-//use App\Models\Models\DatSan;
-
+use App\Models\Models\DatSan;
 class DatSanService
 {
+    protected $checkTokenService;
+    public function __construct(CheckTokenService $checkTokenService)
+    {
+        $this->checkTokenService = $checkTokenService;
+    }
 
     public function getListDatSanByIduser($iduser)
     {
@@ -17,7 +22,7 @@ class DatSanService
         for ($i=0; $i < count($listdatsanByiduser); $i++) { 
             $san= DB::table('sans')->where('id','=', $listdatsanByiduser[$i]->idsan)->get();
             $quan= DB::table('quans')->where('id','=',$san[0]->idquan)->get();
-            $datsan=new datsan($listdatsanByiduser[$i]->id,$quan[0]->name,$quan[0]->address,$quan[0]->phone,$san[0]->name,$listdatsanByiduser[$i]->start_time,$listdatsanByiduser[$i]->price);
+            $datsan=new datsanS($listdatsanByiduser[$i]->id,$quan[0]->name,$quan[0]->address,$quan[0]->phone,$san[0]->name,$listdatsanByiduser[$i]->start_time,$listdatsanByiduser[$i]->price);
             array_push($mangdatsantruocngayhientai,$datsan);
         }
         $keys = array_column($mangdatsantruocngayhientai, 'time');
@@ -27,33 +32,43 @@ class DatSanService
     }
 
     public function  addDatSan($request,int $id=null){
-        $nam = substr($request->get('start_time'), 0, 4);
-        $thang = substr($request->get('start_time'), 5, 2);
-        $ngay = substr($request->get('start_time'), 8, 2);
-        $time = substr($request->get('start_time'), 11, 8);
-        $idsan=$request->get('idsan');
-        $mangdatsantruocngayhientai=DB::table('datsans')->where('start_time','<', substr(Carbon::now(), 0, 10))->get();
-        if(count($mangdatsantruocngayhientai)!=0){
-            $id=$mangdatsantruocngayhientai[0]->id;
-        }
-        if(count(DB::table('datsans')->whereDay('start_time', $ngay)->whereMonth('start_time', $thang)->whereYear('start_time', $nam)->whereTime('start_time','=',$time)-> where('idsan', '=', $idsan)->get())==0) {
-            return DB::table('datsans')::updateOrCreate(
-                [
-                    'id' => $id
-                ],
-                [
-                    'idsan'=> $request->get('idsan'),
-                    'iduser'=> $request->get('iduser'),
-                    'start_time' => $request->get('start_time'),
-                    'price' => $request->get('price'),
-                ]
+        try {
+            $userbyToken=$this->checkTokenService->checkTokenUser($request);
+                if (count($userbyToken) > 0) {
+                $iduser = $userbyToken[0]->id;
+                $nam = substr($request->get('start_time'), 0, 4);
+                $thang = substr($request->get('start_time'), 5, 2);
+                $ngay = substr($request->get('start_time'), 8, 2);
+                $time = substr($request->get('start_time'), 11, 8);
+                $idsan = $request->get('idsan');
+                $mangdatsantruocngayhientai = DB::table('datsans')->where('start_time', '<', substr(Carbon::now(), 0, 10))->get();
+                if (count($mangdatsantruocngayhientai) != 0) {
+                    $id = $mangdatsantruocngayhientai[0]->id;
+                }
+                if (count(DB::table('datsans')->whereDay('start_time', $ngay)->whereMonth('start_time', $thang)->whereYear('start_time', $nam)->whereTime('start_time', '=', $time)->where('idsan', '=', $idsan)->get()) == 0) {
+                    return Datsan::updateOrCreate(
+                        [
+                            'id' => $id
+                        ],
+                        [
+                            'idsan' => $request->get('idsan'),
+                            'iduser' => $iduser,
+                            'start_time' => $request->get('start_time'),
+                            'price' => $request->get('price'),
+                            'Create_time' => Carbon::now()
+                        ]
 
-            );
+                    );
+                }
+            }
+            
+        } catch (\Exception $e) {
+            return [];
         }
         return [];            
     }
 }
-class datsan
+class datsanS
 {
     public $id;
     public $nameQuan;

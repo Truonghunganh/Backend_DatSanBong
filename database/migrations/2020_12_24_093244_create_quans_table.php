@@ -14,7 +14,9 @@ class CreateQuansTable extends Migration
             $table->string('image');
             $table->string('address');
             $table->string('phone');
-            //$table->string('linkaddress');
+            $table->longText('linkaddress')->nullable();
+            $table->boolean('tranhthai');
+            $table->dateTime('Create_time');
             
         });
      }
