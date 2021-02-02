@@ -23,11 +23,22 @@ class UserController extends Controller
     public function logout(){
         Auth::logout();
     }
-    public function register(Request $request){
-        
+    public function registerUser(Request $request){
         try {
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required|min:8',
+                'password' => 'required|min:8',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
             $user= $this->userService->registerUser($request);
-            if ($user===1) {
+            if ($user) {
                 return response()->json([
                     'status' => false,
                     'code' => Response::HTTP_INTERNAL_SERVER_ERROR,

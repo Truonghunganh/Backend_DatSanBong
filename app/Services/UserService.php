@@ -51,12 +51,14 @@ class UserService
         return DB::table('users')->where('role', '=', $role)->where('phone', $request->get('phone'))->get()[0]->token;
     }
     public function registerUser($request){
-        if(count(DB::table('users')->where('phone',$request->get('phone')))==0){
-            return 1;
+        $userCheckPhone= User::where('phone','=', $request->get('phone'))->get();
+        if(count($userCheckPhone)>0){
+            return true;
         }
         DB::insert(
-            'insert into users (name,phone,gmail,address,password,Create_time) values (?, ?,?, ?,?,?)', 
+            'insert into users (role,name,phone,gmail,address,password,Create_time) values (?,?, ?,?, ?,?,?)', 
         [
+            "user",
             $request->get('name'),
             $request->get('phone'),
             $request->get('gmail'),
@@ -68,11 +70,12 @@ class UserService
         $user = User::where("phone", "=", $request->get('phone'))->get();
         if (count($user) > 0) {
             $token = JWTAuth::fromUser($user[0]);
-            return DB::update(
+            DB::update(
                 'update users set token = ? where phone = ?',
                 [$token, $request->get('phone')]
             );
         }
+        return false;
       
     }
     public  function getUser($request)

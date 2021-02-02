@@ -13,6 +13,9 @@ class QuanService
         }
         return null;
     }
+    public function getAllQuan(){
+        return Quan::all();
+    }
     public function findById($id)
     {
         return Quan::find($id);
