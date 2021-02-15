@@ -18,9 +18,9 @@ class CheckTokenController extends Controller
     public function checkTokenUser(Request $request)
     {
         try {
-            $checkTokenUser= $this->checkTokenService->checkTokenUser($request);
-            if (count($checkTokenUser)>0) {
-                $user=new User($checkTokenUser[0]->id, $checkTokenUser[0]->name, $checkTokenUser[0]->phone, $checkTokenUser[0]->gmail, $checkTokenUser[0]->address);
+            $checkToken= $this->checkTokenService->checkTokenUser($request);
+            if (count($checkToken)>0) {
+                $user=new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -38,6 +38,85 @@ class CheckTokenController extends Controller
                 'status' => false,
                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
                 'message' => "token user sai"
+            ]);
+        }
+    }
+    public function checkTokenInnkeeper(Request $request)
+    {
+        try {
+            $checkToken = $this->checkTokenService->checkTokenInnkeeper($request);
+            if (count($checkToken) > 0) {
+                $user = new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'innkeeper' => $user
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+    public function checkTokenAdmin(Request $request)
+    {
+        
+        try {
+            $checkToken = $this->checkTokenService->checkTokenAdmin($request);
+            if (count($checkToken) > 0) {
+                $user = new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'admin' => $user
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => "token user sai"
+            ]);
+        }
+    }
+    public function checkTokenInnkeeperAndIdquan(Request $request)
+    {
+        try {
+            $checkToken = $this->checkTokenService->checkTokenInnkeeperAndIdquan($request);
+            if (count($checkToken) > 0) {
+                $user = new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'innkeeper' => $user
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage(),
             ]);
         }
     }

@@ -13,7 +13,7 @@ class CreateSansTable extends Migration
             $table->bigInteger('idquan');
             $table->string('name');
             $table->integer('numberpeople');
-            $table->boolean('tranhthai');
+            $table->boolean('trangthai');
             $table->bigInteger('priceperhour');
             $table->dateTime('Create_time');
             

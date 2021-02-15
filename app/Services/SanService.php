@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Models\San;
+use Carbon\Carbon;
 
 class SanService
 {
@@ -39,13 +40,34 @@ class SanService
             return $datsans;
         }
         
-        //dd(substr( $request->get('start_time'),0,4));
+    }
+    public function addSanByInnkeeper($request){
+        return DB::insert(
+            'insert into sans (idquan,name,numberpeople,trangthai,priceperhour,Create_time) values (?,?, ?,?, ?,?)',
+            [
+                $request->get('idquan'),
+                $request->get('name'),
+                $request->get('numberpeople'),
+                0,
+                $request->get('priceperhour'),
+                Carbon::now()
 
-        // if ($request->get('idquan')) {
-        //     return San::query()->where('idquan', '=', $request->get('idquan'))->get();
-        // }
+            ]
+        );
+        
+    }
 
-        // return "không có dữ liệu";
+    public function editSanByInnkeeper($request)
+    {
+        return DB::update(
+            'update sans set name = ?, numberpeople = ?, priceperhour =? where id=?',
+            [
+                $request->get('name'),
+                $request->get('numberpeople'),
+                $request->get('priceperhour'),
+                $request->get('id'),
+            ]
+        );
     }
     
 }

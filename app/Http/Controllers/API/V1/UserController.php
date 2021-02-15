@@ -59,6 +59,8 @@ class UserController extends Controller
         }
     }
 
+
+
     public function loginUser(Request $request)
     {
         try {
@@ -89,7 +91,6 @@ class UserController extends Controller
             }
             else {
                 return response()->json([
-                    'u'=>7,
                     'status' => false,
                     'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
                     'message' => "đăng nhập thất bại"
@@ -103,32 +104,6 @@ class UserController extends Controller
             ]);
         }
      }
-    public function checkTokenUser(Request $request){
-        try {
-            $checktoken = $this->checkTokenService->checkTokenUser($request);
-        
-            if (count($checktoken)> 0) {
-                return response()->json([
-                    'status' => true,
-                    'code' => Response::HTTP_OK,
-                    'message' => "token user đúng",
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => "token user sai"
-                ]);
-            }    
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => "token user sai"
-            ]);
-        }
-        
-    }
     public function editUserByToken(Request $request){
         try {
             $validator = Validator::make($request->all(), [
@@ -171,7 +146,5 @@ class UserController extends Controller
         }
 
     }
-    
-
 
 }
