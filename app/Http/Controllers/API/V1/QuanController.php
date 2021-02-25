@@ -49,11 +49,20 @@ class QuanController extends Controller
             if ($request->header('tokenUser')) {
                 try {
                     $token = $this->checkTokenService->checkTokenUser($request);
+                    
                     if (count($token) > 0) {
+                        $quan= $this->quanService->findById($id);
+                        if(!$quan) {
+                            return response()->json([
+                                'status' => false,
+                                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                                'message' => "không tìm thấy idquan =".$id
+                            ]);    
+                        }
                         return response()->json([
                             'status'  => true,
                             'code'    => Response::HTTP_OK,
-                            'quan' => $this->quanService->findById($id),
+                            'quan' => $quan,
                             'person'=>'user'
                         ]);
                     } else {
@@ -76,10 +85,18 @@ class QuanController extends Controller
                 try {
                     $token = $this->checkTokenService->checkTokenInnkeeper($request);
                     if (count($token) > 0) {
+                        $quan = $this->quanService->findById($id);
+                        if (!$quan) {
+                            return response()->json([
+                                'status' => false,
+                                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                                'message' => "không tìm thấy idquan =" . $id
+                            ]);
+                        }
                         return response()->json([
                             'status'  => true,
                             'code'    => Response::HTTP_OK,
-                            'quan' => $this->quanService->findById($id),
+                            'quan' => $quan,
                             'person' => 'innkeeper'
                         ]);
                     } else {
@@ -102,10 +119,18 @@ class QuanController extends Controller
                 try {
                     $token = $this->checkTokenService->checkTokenAdmin($request);
                     if (count($token) > 0) {
+                        $quan = $this->quanService->findById($id);
+                        if (!$quan) {
+                            return response()->json([
+                                'status' => false,
+                                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                                'message' => "không tìm thấy idquan =" . $id
+                            ]);
+                        }
                         return response()->json([
                             'status'  => true,
                             'code'    => Response::HTTP_OK,
-                            'quan' => $this->quanService->findById($id),
+                            'quan' => $quan,
                             'person' => 'admin'
                         
                         ]);

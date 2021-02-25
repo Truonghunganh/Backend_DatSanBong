@@ -44,6 +44,11 @@ Route::prefix('v1')->group(function () {
     Route::delete('deleteQuanChuaduyetByInnkeeper', 'App\Http\Controllers\Api\V1\QuanController@deleteQuanChuaduyetByInnkeeper');
     Route::put('editSanByInnkeeper', 'App\Http\Controllers\Api\V1\SanController@editSanByInnkeeper');
 
+    Route::post('checkTokenInnkeeperAndIdsan', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeperAndIdsan');
+    Route::post('getDanhThuByInnkeeper', 'App\Http\Controllers\Api\V1\DanhThuController@getDanhThuByInnkeeper');
+    Route::post('thayDoiDatSanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@thayDoiDatSanByInnkeeper');
+    Route::post('getListDatSanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@getListDatSanByInnkeeper');
+
     
     // admin : quản lý các quán
     Route::get('checkTokenAdmin', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenAdmin');

@@ -29,7 +29,7 @@ class SanController extends Controller
             return response()->json([
                 'status' => true,
                 'code' => Response::HTTP_OK,
-                'san' => $this->sanService->getSansByIdquan($request),
+                'san' => $this->sanService->getSansByIdquan($request->get('idquan')),
                 'datsans'=> $this->sanService->getDatSansByIdquanVaNgay($request),
             ]);
         } catch (\Exception $e) {

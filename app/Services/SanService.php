@@ -9,13 +9,10 @@ use Carbon\Carbon;
 
 class SanService
 {
-    public function getSansByIdquan($request)
+    public function getSansByIdquan($idquan)
     {
-        if ($request->get('idquan')) {
-            return San::query()->where('idquan','=', $request->get('idquan'))->get();
-        }
+        return San::query()->where('idquan', '=', $idquan)->get();
         
-        return [];
     }
     public function findById($id)
     {

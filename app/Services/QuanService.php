@@ -98,10 +98,19 @@ class QuanService
     public function getQuanByPhone($phone){
         return Quan::where('phone',$phone)->get();
     }
+    public function getQuanByPhoneDaduocduyet($phone)
+    {
+        return Quan::where('phone', $phone)->where('trangthai',1)->get();
+    }
+    public function getQuanByPhoneChuaduocduyet($phone)
+    {
+        return Quan::where('phone', $phone)->where('trangthai', 0)->get();
+    }
+    
     public function deleteQuanById($idquan)
     {
         $quan=Quan::find($idquan);
-        if (File::delete($quan[0]->image)) {
+        if (File::delete($quan->image)) {
             Quan::find($idquan)->delete();
             return true;            
         }

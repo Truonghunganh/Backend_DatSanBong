@@ -6,13 +6,20 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Services\CheckTokenService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Services\SanService;
+use App\Services\QuanService;
+
 
 class CheckTokenController extends Controller
 {
     protected $checkTokenService;
-    public function __construct(CheckTokenService $checkTokenService)
+    protected $sanService;
+    protected $quanService;
+    public function __construct(CheckTokenService $checkTokenService,SanService $sanService, QuanService $quanService)
     {
         $this->checkTokenService = $checkTokenService;
+        $this->sanService = $sanService;
+        $this->quanService = $quanService;
     }
     
     public function checkTokenUser(Request $request)
@@ -120,7 +127,53 @@ class CheckTokenController extends Controller
             ]);
         }
     }
+
+    public function checkTokenInnkeeperAndIdsan(Request $request)
+    {
+        try {
+            $checkToken = $this->checkTokenService->checkTokenInnkeeper($request);
+            if (count($checkToken) > 0) {
+                $san=$this->sanService->findById($request->get("idsan"));
+                if(!$san) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "id san không tồn tại"
+                    ]);
+                    
+                }
+                $quan= $this->quanService->findById($san->idquan);
+                if($quan->phone!=$checkToken[0]->phone) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "token không quyền truy cập"
+                    ]);
+        
+                }
+                $user = new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'innkeeper' => $user
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
     
+
 }
 class User
 {
