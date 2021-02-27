@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     /// user 
-    Route::resource('quan', 'App\Http\Controllers\Api\V1\QuanController')->only(['index','show']);
+    Route::resource('quan', 'App\Http\Controllers\Api\V1\QuanController')->only(['index','show', 'destroy']);
     Route::resource('san', 'App\Http\Controllers\Api\V1\SanController')->only(['index','show']);
     Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['store']);
     
@@ -49,12 +49,18 @@ Route::prefix('v1')->group(function () {
     Route::post('thayDoiDatSanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@thayDoiDatSanByInnkeeper');
     Route::post('getListDatSanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@getListDatSanByInnkeeper');
 
+    Route::post('thu', 'App\Http\Controllers\Api\V1\CheckTokenController@thu');
     
     // admin : quản lý các quán
     Route::get('checkTokenAdmin', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenAdmin');
     Route::post('loginAdmin', 'App\Http\Controllers\Api\V1\AdminController@loginAdmin');
     Route::put('editAdminByToken', 'App\Http\Controllers\Api\V1\AdminController@editAdminByToken');
-    
+    Route::get('getListQuansDaPheDuyetByTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@getListQuansDaPheDuyetByTokenAdmin');
+    Route::get('getListQuansChuaPheDuyetByTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@getListQuansChuaPheDuyetByTokenAdmin');
+    Route::put('UpdateTrangThaiQuanTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@UpdateTrangThaiQuanTokenAdmin');
+    Route::post('getDanhThuByAdmin', 'App\Http\Controllers\Api\V1\DanhThuController@getDanhThuByAdmin');
+    Route::post('getDanhThuListQuanByAdmin', 'App\Http\Controllers\Api\V1\DanhThuController@getDanhThuListQuanByAdmin');
+            
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {

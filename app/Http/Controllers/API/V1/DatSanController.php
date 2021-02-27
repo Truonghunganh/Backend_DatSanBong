@@ -29,6 +29,18 @@ class DatSanController extends Controller
        try {
             $tonkenUser=$this->checkTokenService->checkTokenUser($request);
             if(count($tonkenUser)> 0){
+                date_default_timezone_set("Asia/Ho_Chi_Minh");
+                $time = date('Y-m-d h:i:s');
+
+                if ($request->get('time') < $time) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn phải đặt Trước thời gian hiện tại"
+                    ]);
+
+                }
+        
                 $datsan = $this->datSanService->addDatSan($request);
                 if ($datsan) {
                     return response()->json([
@@ -36,6 +48,14 @@ class DatSanController extends Controller
                         'code'    => Response::HTTP_OK,
                         'datsan' => $datsan
                     ]);
+                }else {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn đã đặt sân thất bại"
+                    ]);
+
+                    
                 }    
             }
             else {

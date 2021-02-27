@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\SanService;
 use App\Services\QuanService;
+use App\Models\Models\DatSan;
+use Carbon\Carbon;
 
 
 class CheckTokenController extends Controller
@@ -21,7 +23,29 @@ class CheckTokenController extends Controller
         $this->sanService = $sanService;
         $this->quanService = $quanService;
     }
+    public function thu(Request $request)
+    {
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time= date('Y-m-d h:i:s');
+        return $this->quanService->findById(1);        
+        if ($request->get('time')>$time) {
+            return $time;
+         } else {
+            return 0;
     
+        }
+        
+        $today = date('Y-m-d');
+        $week = strtotime(date("Y-m-d", strtotime($today)) . " -1 week");
+        $week=strftime("%Y-%m-%d", $week);
+
+        //$listds=DatSan::where()
+        return response()->json([
+            'status' => $today,
+            'code' => $week
+        ]);
+    }
+   
     public function checkTokenUser(Request $request)
     {
         try {
@@ -172,8 +196,7 @@ class CheckTokenController extends Controller
             ]);
         }
     }
-    
-
+ 
 }
 class User
 {

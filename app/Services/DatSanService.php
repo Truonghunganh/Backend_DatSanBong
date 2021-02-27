@@ -9,8 +9,8 @@ use App\Services\QuanService;
 use App\Services\SanService;
 
 use Illuminate\Support\Facades\DB;
-use App\Models\Models\DatSan;
 use App\Models\Models\San;
+use App\Models\Models\DatSan;
 class DatSanService
 {
     protected $checkTokenService;
@@ -53,7 +53,6 @@ class DatSanService
             return $datsans;
         
     }
-    
     public function  addDatSan($request,int $id=null){
         try {
             $userbyToken=$this->checkTokenService->checkTokenUser($request);
@@ -65,14 +64,16 @@ class DatSanService
                 $time = substr($request->get('start_time'), 11, 8);
                 $idsan = $request->get('idsan');
                 $san = $this->sanService->findById($idsan);
-                       
-                
-                $mangdatsantruocngayhientai = DB::table('datsans')->where('start_time', '<', substr(Carbon::now(), 0, 10))->get();
-                if (count($mangdatsantruocngayhientai) != 0) {
-                    $id = $mangdatsantruocngayhientai[0]->id;
+
+                $week = strtotime(date("Y-m-d", strtotime(date('Y-m-d'))) . " -1 week");
+                $week = strftime("%Y-%m-%d", $week);
+
+                $mangdatsantruoc1tuan = DB::table('datsans')->where('start_time', '<', substr($week, 0, 10))->get();
+                if (count($mangdatsantruoc1tuan) != 0) {
+                    $id = $mangdatsantruoc1tuan[0]->id;
                 }
 
-                if (count(DB::table('datsans')->whereDay('start_time', $ngay)->whereMonth('start_time', $thang)->whereYear('start_time', $nam)->whereTime('start_time', '=', $time)->where('idsan', '=', $idsan)->get()) == 0) {
+                if (count(DB::table('datsans')->where('start_time', '=', $request->get('start_time'))->where('idsan', '=', $idsan)->get()) == 0) {
                     $danhthu= DB::table('danhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $san->idquan)->get();
                     
                     if (count($danhthu) >0) {

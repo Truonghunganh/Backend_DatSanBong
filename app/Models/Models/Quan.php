@@ -9,10 +9,11 @@ class Quan extends Model
 {
     use HasFactory;
     protected $fillable = [
-            'name',
-            'image',
-            'address',
-            'phone'
+        'id',        
+        'name',
+        'image',
+        'address',
+        'phone'
            
     ];
 

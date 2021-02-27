@@ -17,6 +17,11 @@ class QuanService
         }
         return [];
     }
+    public function deleteQuanByAdmin($id,$image){
+        File::delete($image);
+        $quan=Quan::find($id);      
+        return $quan->delete();
+    }
     public function getAllQuan(){
         return Quan::all();
     }
@@ -28,7 +33,13 @@ class QuanService
     {
         return Quan::where('id', $id)->where('trangthai',0)->get();
     }
-    
+    public function getListQuansByTokenAdmin($trangthai)
+    {
+        return Quan::where('trangthai', $trangthai)->get();
+    }
+    public function  UpdateTrangThaiQuanTokenAdmin($request){
+        return DB::update('update quans set trangthai = ? where id =? ', [$request->get('trangthai'),$request->get('idquan')]);
+    }
     public function getListQuansByTokenInnkeeper($innkeeper,$trangthai){
         return Quan::where('trangthai',$trangthai)->where('phone',$innkeeper[0]->phone)->get();
     }

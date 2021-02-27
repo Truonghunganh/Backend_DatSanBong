@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\CheckTokenService;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 class QuanController extends Controller
 {
@@ -161,7 +162,148 @@ class QuanController extends Controller
                 'message' => $e->getMessage()
             ]);
         }
-    }    
+    }
+    public function getListQuansDaPheDuyetByTokenAdmin(Request $request)
+    {
+        try {
+            $admin = $this->checkTokenService->checkTokenAdmin($request);
+            if (count($admin) > 0) {
+
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'quans' =>  $this->quanService->getListQuansByTokenAdmin( 1)
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function destroy(Request $request,$id){
+        try {
+            $admin = $this->checkTokenService->checkTokenAdmin($request);
+            if (count($admin) > 0) {
+                $quan= $this->quanService->findById($id);
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy quán có id =".$id
+                    ]);
+                }
+
+                if (!$this->quanService->deleteQuanByAdmin($id,$quan->image)) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "xóa quán không thành công"
+                    ]);
+                }
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'message' =>"đã xóa quán thành công có id = " . $id
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function UpdateTrangThaiQuanTokenAdmin(Request $request)
+    {
+        try {
+            
+            $admin = $this->checkTokenService->checkTokenAdmin($request);
+            if (count($admin) > 0) {
+                $validator = Validator::make($request->all(), [
+                    'trangthai' => 'required',
+                    'idquan'=>'required'
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => $validator->errors()
+                    ]);
+                }
+
+                $quan= $this->quanService->UpdateTrangThaiQuanTokenAdmin($request);
+                if(!$quan){
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "thay đổi trạng thái quán không thành công"
+                    ]);
+                }
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'quan' =>  $quan
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    
+    public function getListQuansChuaPheDuyetByTokenAdmin(Request $request)
+    {
+        try {
+            $admin = $this->checkTokenService->checkTokenAdmin($request);
+            if (count($admin) > 0) {
+
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'quans' =>  $this->quanService->getListQuansByTokenAdmin(0)
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+       
     public function getListQuansByTokenInnkeeper(Request $request){
         try {
             $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
