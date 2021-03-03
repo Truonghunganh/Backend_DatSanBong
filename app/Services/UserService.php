@@ -19,6 +19,10 @@ class UserService
         }
         return [];
     }
+    public function getUserById($id){
+        $user = DB::table('users')->where('id', $id)->first();
+        return new User1($user->id, $user->name, $user->phone, $user->gmail, $user->address);
+    }
     public function editUserByToken($request,$id)
     {
         DB::update(
@@ -85,4 +89,20 @@ class UserService
 
     
        
+}
+class User1
+{
+    public $id;
+    public $name;
+    public $phone;
+    public $gmail;
+    public $address;
+    public function __construct($id, $name, $phone, $gmail, $address)
+    {
+        $this->id = $id;
+        $this->name = $name;
+        $this->phone = $phone;
+        $this->gmail = $gmail;
+        $this->address = $address;
+    }
 }

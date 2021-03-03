@@ -8,22 +8,22 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\DanhThuService;
+use App\Services\DoanhThuService;
 use App\Services\QuanService;
 
 use App\Services\CheckTokenService;
-class DanhThuController extends Controller
+class DoanhThuController extends Controller
 {
-    protected $danhThuService;
+    protected $doanhThuService;
     protected $quanService;
     protected $checkTokenService;
     public function __construct(
-        DanhThuService $danhThuService, 
+        DoanhThuService $doanhThuService, 
         CheckTokenService $checkTokenService,
         QuanService $quanService
     )
     {
-        $this->danhThuService = $danhThuService;
+        $this->doanhThuService = $doanhThuService;
         $this->checkTokenService = $checkTokenService;
         $this->quanService = $quanService;
     }
@@ -70,7 +70,7 @@ class DanhThuController extends Controller
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
-                    'danhthus' => $this->danhThuService->getDanhThuByInnkeeper($request)
+                    'danhthus' => $this->doanhThuService->getDanhThuByInnkeeper($request)
                 ]);
             } else {
                 return response()->json([
@@ -124,7 +124,7 @@ class DanhThuController extends Controller
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
-                    'danhthus' => $this->danhThuService->getDanhThuByInnkeeper($request)
+                    'danhthus' => $this->doanhThuService->getDanhThuByInnkeeper($request)
                 ]);
             } else {
                 return response()->json([
@@ -162,7 +162,7 @@ class DanhThuController extends Controller
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
-                    'danhthus' => $this->danhThuService->getDanhThuListQuanByAdmin($request)
+                    'danhthus' => $this->doanhThuService->getDanhThuListQuanByAdmin($request)
                 ]);
             } else {
                 return response()->json([

@@ -4,13 +4,13 @@ namespace App\Services;
 
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Models\DanhThu;
+use App\Models\Models\DoanhThu;
 use App\Models\Models\Quan;
 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class DanhThuService
+class DoanhThuService
 {
     public function getDanhThuByInnkeeper($request){
         
@@ -20,10 +20,10 @@ class DanhThuService
         if (!is_int((int)$nam)||!is_int((int)$thang)) {
             return [];
         }
-        $danhthuold= DanhThu::where("idquan",$idquan)->whereYear("time",$nam)->whereMonth("time",$thang)->get();
+        $danhthuold= DoanhThu::where("idquan",$idquan)->whereYear("time",$nam)->whereMonth("time",$thang)->get();
         $danhthus=[];
         for ($i=0; $i < $danhthuold->count(); $i++) { 
-            array_push($danhthus,new DanhThus($danhthuold[$i]->id,$danhthuold[$i]->idquan,$danhthuold[$i]->danhthu,$danhthuold[$i]->time));
+            array_push($danhthus,new DoanhThus($danhthuold[$i]->id,$danhthuold[$i]->idquan,$danhthuold[$i]->danhthu,$danhthuold[$i]->time));
         }
         $keys = array_column($danhthus, 'time');
         // SORT_ASC : laf tăng dần
@@ -42,7 +42,7 @@ class DanhThuService
         $danhthus = [];
         for ($i = 0; $i < $quans->count(); $i++) {
             $tien=0;
-            $danhthuold = DanhThu::where("idquan", $quans[$i]->id)->whereYear("time", $nam)->whereMonth("time", $thang)->get();
+            $danhthuold = DoanhThu::where("idquan", $quans[$i]->id)->whereYear("time", $nam)->whereMonth("time", $thang)->get();
             for ($j=0; $j <$danhthuold->count(); $j++) { 
                 $tien+=(int)$danhthuold[$j]->danhthu;
             }
@@ -57,7 +57,7 @@ class DanhThuService
     
 }
 
-class DanhThus
+class DoanhThus
 {
     public $id;
     public $idquan;

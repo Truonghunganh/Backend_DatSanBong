@@ -18,7 +18,7 @@ Route::prefix('v1')->group(function () {
     /// user 
     Route::resource('quan', 'App\Http\Controllers\Api\V1\QuanController')->only(['index','show', 'destroy']);
     Route::resource('san', 'App\Http\Controllers\Api\V1\SanController')->only(['index','show']);
-    Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['store']);
+    Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['store', 'destroy']);
     
     Route::get('getListDatSanByUserToken', 'App\Http\Controllers\Api\V1\DatSanController@getListDatSanByUserToken');
     Route::put('editUserByToken', 'App\Http\Controllers\Api\V1\UserController@editUserByToken');
@@ -45,9 +45,12 @@ Route::prefix('v1')->group(function () {
     Route::put('editSanByInnkeeper', 'App\Http\Controllers\Api\V1\SanController@editSanByInnkeeper');
 
     Route::post('checkTokenInnkeeperAndIdsan', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeperAndIdsan');
-    Route::post('getDanhThuByInnkeeper', 'App\Http\Controllers\Api\V1\DanhThuController@getDanhThuByInnkeeper');
+    Route::post('getDanhThuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getDanhThuByInnkeeper');
     Route::post('thayDoiDatSanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@thayDoiDatSanByInnkeeper');
     Route::post('getListDatSanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@getListDatSanByInnkeeper');
+    Route::post('getAllDatSanByInnkeeperAndIdquan', 'App\Http\Controllers\Api\V1\DatSanController@getAllDatSanByInnkeeperAndIdquan');
+    Route::put('xacNhanDatsanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@xacNhanDatsanByInnkeeper');
+    //Route::get('get', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');
 
     Route::post('thu', 'App\Http\Controllers\Api\V1\CheckTokenController@thu');
     
@@ -58,8 +61,8 @@ Route::prefix('v1')->group(function () {
     Route::get('getListQuansDaPheDuyetByTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@getListQuansDaPheDuyetByTokenAdmin');
     Route::get('getListQuansChuaPheDuyetByTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@getListQuansChuaPheDuyetByTokenAdmin');
     Route::put('UpdateTrangThaiQuanTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@UpdateTrangThaiQuanTokenAdmin');
-    Route::post('getDanhThuByAdmin', 'App\Http\Controllers\Api\V1\DanhThuController@getDanhThuByAdmin');
-    Route::post('getDanhThuListQuanByAdmin', 'App\Http\Controllers\Api\V1\DanhThuController@getDanhThuListQuanByAdmin');
+    Route::post('getDanhThuByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDanhThuByAdmin');
+    Route::post('getDanhThuListQuanByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDanhThuListQuanByAdmin');
             
 });
 

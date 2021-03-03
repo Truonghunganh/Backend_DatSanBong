@@ -12,7 +12,7 @@ class San extends Model
         'idquan',
         'name',
         'numberpeople',
-        'tranhthai',
+        'trangthai',
         'priceperhour'
            
     ];

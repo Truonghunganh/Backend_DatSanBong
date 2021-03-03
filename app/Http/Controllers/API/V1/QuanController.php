@@ -27,7 +27,7 @@ class QuanController extends Controller
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'quan' => $this->quanService->getAllQuan()
+                    'quans' =>$this->quanService->getListQuansByTrangthai(1) 
                 ]);   
            } else {
                 return response()->json([
@@ -172,7 +172,7 @@ class QuanController extends Controller
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'quans' =>  $this->quanService->getListQuansByTokenAdmin( 1)
+                    'quans' =>  $this->quanService->getListQuansByTrangthai( 1)
                 ]);
             } else {
                 return response()->json([
@@ -286,7 +286,7 @@ class QuanController extends Controller
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'quans' =>  $this->quanService->getListQuansByTokenAdmin(0)
+                    'quans' =>  $this->quanService->getListQuansByTrangthai(0)
                 ]);
             } else {
                 return response()->json([

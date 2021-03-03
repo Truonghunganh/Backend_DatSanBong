@@ -10,11 +10,6 @@ use Illuminate\Database\Seeder;
 
 class QuanTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         $data = [
@@ -23,7 +18,7 @@ class QuanTableSeeder extends Seeder
             "address"=>"60-Ngô Sĩ liên-Đà nẵng",
             "phone" => "0987654321",
             "linkaddress" => "https://www.google.com/maps/place/60+Ngô+Sĩ+Liên,+Hoà+Khánh+Bắc,+Liên+Chiểu,+Đà+Nẵng+550000,+Việt+Nam/@16.0739926,108.1511769,17z/data=!3m1!4b1!4m5!3m4!1s0x314218d76b1a334f:0xeca62349bfbee122!8m2!3d16.0739875!4d108.1533656?hl=vi-VN",
-            "tranhthai" =>true,
+            "trangthai" =>true,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
@@ -33,7 +28,7 @@ class QuanTableSeeder extends Seeder
             "address" => "60-Ngô Sĩ liên-Đà nẵng",
             "phone" => "0123456789",
             "linkaddress" => "https://www.google.com/maps/place/60+Ngô+Sĩ+Liên,+Hoà+Khánh+Bắc,+Liên+Chiểu,+Đà+Nẵng+550000,+Việt+Nam/@16.0739926,108.1511769,17z/data=!3m1!4b1!4m5!3m4!1s0x314218d76b1a334f:0xeca62349bfbee122!8m2!3d16.0739875!4d108.1533656?hl=vi-VN",
-            "tranhthai" => true,
+            "trangthai" => true,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);

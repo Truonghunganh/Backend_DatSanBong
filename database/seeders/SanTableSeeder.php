@@ -16,7 +16,7 @@ class SanTableSeeder extends Seeder
             "idquan" => 1,
             "numberpeople" => 5,
             "priceperhour" => 150000,
-            "tranhthai" => true,
+            "trangthai" => true,
             "Create_time" => Carbon::now()
         ];
         DB::table('sans')->insert($data);
@@ -25,7 +25,7 @@ class SanTableSeeder extends Seeder
             "idquan" => 1,
             "numberpeople" => 5,
             "priceperhour" => 150000,
-            "tranhthai" => true,
+            "trangthai" => true,
             "Create_time" => Carbon::now()
         ];
         DB::table('sans')->insert($data);
@@ -34,7 +34,7 @@ class SanTableSeeder extends Seeder
             "idquan" => 1,
             "numberpeople" => 7,
             "priceperhour" => 200000,
-            "tranhthai" => true,
+            "trangthai" => true,
             "Create_time" => Carbon::now()
         ];
         DB::table('sans')->insert($data);
@@ -44,7 +44,7 @@ class SanTableSeeder extends Seeder
             "idquan" => 2,
             "numberpeople" => 5,
             "priceperhour" => 150000,
-            "tranhthai" => true,
+            "trangthai" => true,
             "Create_time" => Carbon::now()
         ];
         DB::table('sans')->insert($data);
@@ -53,7 +53,7 @@ class SanTableSeeder extends Seeder
             "idquan" => 2,
             "numberpeople" => 5,
             "priceperhour" => 150000,
-            "tranhthai" => true,
+            "trangthai" => true,
             "Create_time" => Carbon::now()
         ];
         DB::table('sans')->insert($data);
@@ -62,7 +62,7 @@ class SanTableSeeder extends Seeder
             "idquan" => 2,
             "numberpeople" => 7,
             "priceperhour" => 200000,
-            "tranhthai" => true,
+            "trangthai" => true,
             "Create_time" => Carbon::now()
         ];
         DB::table('sans')->insert($data);

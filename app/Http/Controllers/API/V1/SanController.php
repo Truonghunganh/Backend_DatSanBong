@@ -9,18 +9,24 @@ use Illuminate\Http\Request;
 use App\Services\QuanService;
 use App\Services\CheckTokenService;
 use Illuminate\Support\Facades\Validator;
+use App\Services\DatSanService;
 
 class SanController extends Controller
 {
     protected $sanService;
     protected $checkTokenService;
     protected $quanService;
-    public function __construct(SanService $sanService, CheckTokenService $checkTokenService, QuanService $quanService)
+    protected $datSanService;
+    public function __construct(
+        SanService $sanService,
+        CheckTokenService $checkTokenService, 
+        QuanService $quanService,
+        DatSanService $datSanService)
     {
         $this->sanService = $sanService;
         $this->checkTokenService=$checkTokenService;
         $this->quanService=$quanService;
-
+        $this->datSanService=$datSanService;
     }
     
     public function index(Request $request)
@@ -30,7 +36,7 @@ class SanController extends Controller
                 'status' => true,
                 'code' => Response::HTTP_OK,
                 'san' => $this->sanService->getSansByIdquan($request->get('idquan')),
-                'datsans'=> $this->sanService->getDatSansByIdquanVaNgay($request),
+                'datsans'=> $this->datSanService->getDatSansByIdquanVaNgay($request->get('idquan'),$request->get('start_time')),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -153,7 +159,7 @@ class SanController extends Controller
                 ]);
             }    
             
-            if (!is_int($request->get('priceperhour'))|| !is_int($request->get('numberpeople'))) {
+            if (!is_int((int)$request->get('priceperhour'))|| !is_int((int)$request->get('numberpeople'))) {
                 return response()->json([
                     'status' => false,
                     'code' => Response::HTTP_INTERNAL_SERVER_ERROR,

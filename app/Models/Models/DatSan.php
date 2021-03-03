@@ -13,6 +13,7 @@ class DatSan extends Model
         'iduser',
         'start_time',
         'price',
+        'xacnhan',
         'Create_time'    
     ];
     public $timestamps = false;

@@ -33,7 +33,7 @@ class QuanService
     {
         return Quan::where('id', $id)->where('trangthai',0)->get();
     }
-    public function getListQuansByTokenAdmin($trangthai)
+    public function getListQuansByTrangthai($trangthai)
     {
         return Quan::where('trangthai', $trangthai)->get();
     }

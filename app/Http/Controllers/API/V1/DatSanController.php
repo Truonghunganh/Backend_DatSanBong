@@ -32,11 +32,11 @@ class DatSanController extends Controller
                 date_default_timezone_set("Asia/Ho_Chi_Minh");
                 $time = date('Y-m-d h:i:s');
 
-                if ($request->get('time') < $time) {
+                if ($request->get('start_time') < $time) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => "bạn phải đặt Trước thời gian hiện tại"
+                        'message' => "bạn phải đặt Trước thời gian hiện tại",
                     ]);
 
                 }
@@ -138,6 +138,198 @@ class DatSanController extends Controller
                     'status' => true,
                     'code' => Response::HTTP_OK,
                     'datsans' => $datsans
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function destroy(Request $request,$id){
+        try {
+            $user = $this->checkTokenService->checkTokenUser($request);
+            if (count($user) > 0) {
+                $datsan = $this->datSanService->find($id);
+                if (!$datsan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy id đặt sân này "
+                    ]);
+                }
+                
+                if ($user[0]->id != $datsan->iduser) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "token này không có quyền tri cập đến đặt sân này"
+                    ]);
+                }
+                date_default_timezone_set("Asia/Ho_Chi_Minh");
+                $time = date('Y-m-d H:i:s');
+                if($time>$datsan->start_time){
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không thể xóa được vì thời gian đặt sân phải lớn hơn thời gian hiền tại"
+                    ]);
+                }
+                $week = strtotime(date("Y-m-d", strtotime(date('Y-m-d'))) . " -1 week");
+                $week = strftime("%Y-%m-%d", $week)." 00:00:00";
+                
+                $ds= $this->datSanService->updateDatsan($id,$week);
+                if ($ds) {
+                    return response()->json([
+                        'status' => true,
+                        'code' => Response::HTTP_OK,
+                        'message' => "xóa thành công đặt sân",
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "Xóa đặt sân thất bại"
+                    ]);
+                }
+                
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function xacNhanDatsanByInnkeeper(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'iddatsan' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
+            if (count($innkeeper) > 0) {
+                $datsan=$this->datSanService->getDatSanById($request->get('iddatsan'),false);
+                if(!$datsan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy id đặt sân này hoặt đặt sân này đã xác nhận rồi"
+                    ]);
+                }
+                $san=$this->sanService->findById($datsan->idsan);
+                if (!$san) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy id sân này = ".$datsan->idsan
+                    ]);
+                }
+                
+                $quan = $this->quanService->findById($san->idquan);
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy id quán này = ".$san->idquan
+                    ]);
+                }
+                
+                if ($innkeeper[0]->phone != $quan->phone) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "token này không có quyền tri cập đến quán này"
+                    ]);
+                }
+                $xacnhan = $this->datSanService->xacNhanDatsan($request->get('iddatsan'),1,$datsan->start_time,$datsan->price,$san);
+                if ($xacnhan) {
+                    return response()->json([
+                        'status' => true,
+                        'code' => Response::HTTP_OK,
+                        'message' =>"xác nhận thành công",
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "xác nhận thất bại",
+                    ]);
+                }
+                
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getAllDatSanByInnkeeperAndIdquan(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'idquan' => 'required',
+                'trangthai' => 'required',
+                'time' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
+            if (count($innkeeper) > 0) {
+                $quan= $this->quanService->findById($request->get('idquan'));
+                if($innkeeper[0]->phone!=$quan->phone){
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "token này không có quyền tri cập đến quán này"
+                    ]); 
+                }
+                $datsans = $this->datSanService->getAllDatSanByIdquan($request->get("idquan"),$request->get("trangthai"),$request->get("time"));
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'datsans' => $datsans,
+                    'quan'=>$quan
                 ]);
             } else {
                 return response()->json([
