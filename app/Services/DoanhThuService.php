@@ -12,7 +12,7 @@ use Carbon\Carbon;
 
 class DoanhThuService
 {
-    public function getDanhThuByInnkeeper($request){
+    public function getDoanhThuByInnkeeper($request){
         
         $idquan=$request->get("idquan");
         $nam = substr($request->get('time'), 0, 4);
@@ -20,16 +20,42 @@ class DoanhThuService
         if (!is_int((int)$nam)||!is_int((int)$thang)) {
             return [];
         }
-        $danhthuold= DoanhThu::where("idquan",$idquan)->whereYear("time",$nam)->whereMonth("time",$thang)->get();
-        $danhthus=[];
-        for ($i=0; $i < $danhthuold->count(); $i++) { 
-            array_push($danhthus,new DoanhThus($danhthuold[$i]->id,$danhthuold[$i]->idquan,$danhthuold[$i]->danhthu,$danhthuold[$i]->time));
+        $doanhthuold= DoanhThu::where("idquan",$idquan)->whereYear("time",$nam)->whereMonth("time",$thang)->get();
+        $doanhthus=[];
+        for ($i=0; $i < $doanhthuold->count(); $i++) { 
+            array_push($doanhthus,new DoanhThus($doanhthuold[$i]->id,$doanhthuold[$i]->idquan,$doanhthuold[$i]->doanhthu,$doanhthuold[$i]->time));
         }
-        $keys = array_column($danhthus, 'time');
+        $keys = array_column($doanhthus, 'time');
         // SORT_ASC : laf tăng dần
-        array_multisort($keys, SORT_ASC, $danhthus);
-        return $danhthus;
+        array_multisort($keys, SORT_ASC, $doanhthus);
+        return $doanhthus;
                 
+    }
+    public function getDoanhThuTheoNamByInnkeeper($request)
+    {
+        $idquan = $request->get("idquan");
+        $nam = substr($request->get('nam'), 0, 4);
+        if (!is_int((int)$nam) ) {
+            return [];
+        }
+        $tongdoanhthus = [];
+        $tong=0;
+        for ($i = 1; $i < 13; $i++) {
+            $doanhthuold = DoanhThu::where("idquan", $idquan)->whereYear("time", $nam)->whereMonth("time", $i)->get();
+            $tong=0;
+            for ($j=0; $j <$doanhthuold->count(); $j++) { 
+                $tong+=$doanhthuold[$j]->doanhthu;
+            }
+            array_push($tongdoanhthus,$tong );
+
+        }
+        return $tongdoanhthus;
+    }
+    public function TruDoanhThuCuaQuan($id,$tien){
+        DB::update('update doanhthus set doanhthu= ? where id = ?', [$tien,$id]);
+    }
+    public function getDoanhThuByIdquanAndTime($idquan,$time){
+        return DoanhThu::where('idquan',$idquan)->where('time',$time)->first();
     }
     public function getDanhThuListQuanByAdmin($request)
     {
@@ -39,20 +65,20 @@ class DoanhThuService
             return [];
         }
         $quans=Quan::where('trangthai',true)->get();
-        $danhthus = [];
+        $doanhthus = [];
         for ($i = 0; $i < $quans->count(); $i++) {
             $tien=0;
-            $danhthuold = DoanhThu::where("idquan", $quans[$i]->id)->whereYear("time", $nam)->whereMonth("time", $thang)->get();
-            for ($j=0; $j <$danhthuold->count(); $j++) { 
-                $tien+=(int)$danhthuold[$j]->danhthu;
+            $doanhthuold = DoanhThu::where("idquan", $quans[$i]->id)->whereYear("time", $nam)->whereMonth("time", $thang)->get();
+            for ($j=0; $j <$doanhthuold->count(); $j++) { 
+                $tien+=(int)$doanhthuold[$j]->doanhthu;
             }
-            array_push($danhthus, new DanhThuQuan($quans[$i]->id,$quans[$i]->name,$quans[$i]->address,$quans[$i]->phone,$tien));
+            array_push($doanhthus, new DanhThuQuan($quans[$i]->id,$quans[$i]->name,$quans[$i]->address,$quans[$i]->phone,$tien));
 
         }
-        $keys = array_column($danhthus, 'idquan');
+        $keys = array_column($doanhthus, 'idquan');
         // SORT_ASC : laf tăng dần
-        array_multisort($keys, SORT_ASC, $danhthus);
-        return $danhthus;
+        array_multisort($keys, SORT_ASC, $doanhthus);
+        return $doanhthus;
     }
     
 }
@@ -61,13 +87,13 @@ class DoanhThus
 {
     public $id;
     public $idquan;
-    public $danhthu;
+    public $doanhthu;
     public $time;
-    public function __construct($id, $idquan, $danhthu, $time)
+    public function __construct($id, $idquan, $doanhthu, $time)
     {
         $this->id = $id;
         $this->idquan = $idquan;
-        $this->danhthu = $danhthu;
+        $this->doanhthu = $doanhthu;
         $this->time = $time;
         
     }

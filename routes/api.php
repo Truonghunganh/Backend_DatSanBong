@@ -45,16 +45,18 @@ Route::prefix('v1')->group(function () {
     Route::put('editSanByInnkeeper', 'App\Http\Controllers\Api\V1\SanController@editSanByInnkeeper');
 
     Route::post('checkTokenInnkeeperAndIdsan', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeperAndIdsan');
-    Route::post('getDanhThuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getDanhThuByInnkeeper');
+    Route::post('getDoanhThuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuByInnkeeper');
     Route::post('thayDoiDatSanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@thayDoiDatSanByInnkeeper');
     Route::post('getListDatSanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@getListDatSanByInnkeeper');
     Route::post('getAllDatSanByInnkeeperAndIdquan', 'App\Http\Controllers\Api\V1\DatSanController@getAllDatSanByInnkeeperAndIdquan');
     Route::put('xacNhanDatsanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@xacNhanDatsanByInnkeeper');
+    Route::post('getTongDoanhThuTheoNamByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getTongDoanhThuTheoNamByInnkeeper');
+    Route::post('getDatSansvaSansByInnkeeperAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByInnkeeperAndIdquanAndNgay');
     //Route::get('get', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');
 
     Route::post('thu', 'App\Http\Controllers\Api\V1\CheckTokenController@thu');
     
-    // admin : quản lý các quán
+    // admin : quản lý các quán getDatSansvaSansByInnkeeperAndIdquanAndNgay
     Route::get('checkTokenAdmin', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenAdmin');
     Route::post('loginAdmin', 'App\Http\Controllers\Api\V1\AdminController@loginAdmin');
     Route::put('editAdminByToken', 'App\Http\Controllers\Api\V1\AdminController@editAdminByToken');

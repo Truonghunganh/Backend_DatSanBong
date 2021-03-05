@@ -44,6 +44,7 @@ class CheckTokenService
             }
              
             $tokenUser = User::where('role', '=', "admin")->where('token', $request->header('tokenAdmin'))->get();
+            
             if (count($tokenUser) > 0) {
                 return $tokenUser;
             } else {
@@ -62,9 +63,9 @@ class CheckTokenService
             if (!$token) {
                 return [];
             }
-            $tokenUser = User::where('role', '=', "innkeeper")->where('token', $token)->get();
-            if (count($tokenUser) > 0) {
-                return $tokenUser;
+            $user = User::where('role', '=', "innkeeper")->where('token', $token)->get();
+            if (count($user) > 0) {
+                return $user;
             } else {
                 return [];
             }

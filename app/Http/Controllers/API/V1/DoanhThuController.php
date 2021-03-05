@@ -28,7 +28,7 @@ class DoanhThuController extends Controller
         $this->quanService = $quanService;
     }
     
-    public function getDanhThuByInnkeeper(Request $request){
+    public function getDoanhThuByInnkeeper(Request $request){
         try {
             $validator = Validator::make($request->all(), [
                 'idquan' => 'required',
@@ -70,7 +70,7 @@ class DoanhThuController extends Controller
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
-                    'danhthus' => $this->doanhThuService->getDanhThuByInnkeeper($request)
+                    'doanhthus' => $this->doanhThuService->getDoanhThuByInnkeeper($request)
                 ]);
             } else {
                 return response()->json([
@@ -88,6 +88,67 @@ class DoanhThuController extends Controller
         }
     }
 
+
+    public function getTongDoanhThuTheoNamByInnkeeper(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'idquan' => 'required',
+                'nam' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            if (!is_int($request->get('idquan'))) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "idquan yêu cầu phải là số"
+                ]);
+            }
+            $token = $this->checkTokenService->checkTokenInnkeeper($request);
+            if (count($token) > 0) {
+                $quan = $this->quanService->findById($request->get('idquan'));
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "idquan không tìm thấy"
+                    ]);
+                }
+                if ($quan->phone != $token[0]->phone) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn không có quyền truy cập đến id của quán này"
+                    ]);
+                }
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'doanhthustheonam' => $this->doanhThuService->getDoanhThuTheoNamByInnkeeper($request)
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     public function getDanhThuByAdmin(Request $request)
     {
         try {
@@ -124,7 +185,7 @@ class DoanhThuController extends Controller
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
-                    'danhthus' => $this->doanhThuService->getDanhThuByInnkeeper($request)
+                    'danhthus' => $this->doanhThuService->getDoanhThuByInnkeeper($request)
                 ]);
             } else {
                 return response()->json([

@@ -32,11 +32,12 @@ class SanController extends Controller
     public function index(Request $request)
     {
         try {
+            $sans= $this->sanService->getSansByIdquan($request->get('idquan'));
             return response()->json([
                 'status' => true,
                 'code' => Response::HTTP_OK,
-                'san' => $this->sanService->getSansByIdquan($request->get('idquan')),
-                'datsans'=> $this->datSanService->getDatSansByIdquanVaNgay($request->get('idquan'),$request->get('start_time')),
+                'san' => $sans,
+                'datsans'=> $this->datSanService->getDatSansByIdquanVaNgay($sans,$request->get('start_time')),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -47,6 +48,7 @@ class SanController extends Controller
         }
       
     }
+    
     public function show(Request $request, $id)
     {
         try {

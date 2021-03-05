@@ -8,8 +8,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\SanService;
 use App\Services\QuanService;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Models\DatSan;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 
 class CheckTokenController extends Controller
@@ -25,6 +27,8 @@ class CheckTokenController extends Controller
     }
     public function thu(Request $request)
     {
+        return
+        DB::table('datsans')->whereIn('idsan', [4])->whereDay('start_time', 13)->whereMonth('start_time', 10)->whereYear('start_time', 2021)->get();
         date_default_timezone_set("Asia/Ho_Chi_Minh");
         $time= date('Y-m-d h:i:s');
         return $this->quanService->findById(1);        
@@ -128,13 +132,34 @@ class CheckTokenController extends Controller
     public function checkTokenInnkeeperAndIdquan(Request $request)
     {
         try {
-            $checkToken = $this->checkTokenService->checkTokenInnkeeperAndIdquan($request);
+            $validator = Validator::make($request->all(), [
+                'idquan' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $checkToken = $this->checkTokenService->checkTokenInnkeeper($request);
             if (count($checkToken) > 0) {
+                $quan = $this->quanService->findById($request->get('idquan'));
+                if($quan->phone!=$checkToken[0]->phone) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn không có quyền truy cập đến quán này"
+                    ]);    
+                }
                 $user = new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'innkeeper' => $user
+                    'innkeeper' => $user,
+                    'quan' =>$quan
                 ]);
             } else {
                 return response()->json([
