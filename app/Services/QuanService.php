@@ -29,6 +29,10 @@ class QuanService
     {
         return Quan::find($id);
     }
+    public function findByIdVaTrangThai($id,$trangthai)
+    {
+        return Quan::where('id',$id)->where('trangthai',$trangthai)->first();
+    }
     public function findQuanChuaduyetById($id)
     {
         return Quan::where('id', $id)->where('trangthai',0)->get();

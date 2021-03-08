@@ -27,6 +27,8 @@ class CheckTokenController extends Controller
     }
     public function thu(Request $request)
     {
+        return mt_rand(0, 2) ;
+
         return
         DB::table('datsans')->whereIn('idsan', [4])->whereDay('start_time', 13)->whereMonth('start_time', 10)->whereYear('start_time', 2021)->get();
         date_default_timezone_set("Asia/Ho_Chi_Minh");

@@ -44,122 +44,136 @@ class QuanController extends Controller
             ]);
         }
     }
+    public function getQuanByIdAndTokenInnkeeper(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'idquan' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+           
+            $token = $this->checkTokenService->checkTokenInnkeeper($request);
+            if (count($token) > 0) {
+                $id=$request->get('idquan');
+                $quan = $this->quanService->findById($id);
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy idquan =" . $id
+                    ]);
+                }
+                if ($token[0]->phone != $quan->phone) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn không có quyền truy cập đến quán này"
+                    ]);
+                }
+                
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'quan' => $quan,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token Innkeeper không đúng"
+                ]);
+            }
+        } catch (\Exception $e1) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e1->getMessage()
+            ]);
+        }
+    }
+    public function getQuanByIdAndTokenUser(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'idquan' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+            $token = $this->checkTokenService->checkTokenUser($request);
+            if (count($token) > 0) {
+                $idquan = $request->get("idquan");
+                $quan = $this->quanService->findByIdVaTrangThai($idquan,1);
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy idquan =" . $idquan
+                    ]);
+                }
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'quan' => $quan,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user không đúng"
+                ]);
+            }
+        } catch (\Exception $e1) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e1->getMessage()
+            ]);
+        }
+
+    }
     public function show(Request $request,$id)
     {
         try {
-            if ($request->header('tokenUser')) {
-                try {
-                    $token = $this->checkTokenService->checkTokenUser($request);
-                    
-                    if (count($token) > 0) {
-                        $quan= $this->quanService->findById($id);
-                        if(!$quan) {
-                            return response()->json([
-                                'status' => false,
-                                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                                'message' => "không tìm thấy idquan =".$id
-                            ]);    
-                        }
-                        return response()->json([
-                            'status'  => true,
-                            'code'    => Response::HTTP_OK,
-                            'quan' => $quan,
-                            'person'=>'user'
-                        ]);
-                    } else {
-                        return response()->json([
-                            'status' => false,
-                            'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                            'message' => "token user không đúng"
-                        ]);
-                    }
-                } catch (\Exception $e1) {
+            $token = $this->checkTokenService->checkTokenAdmin($request);
+            if (count($token) > 0) {
+                $quan = $this->quanService->findById($id);
+                if (!$quan) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => $e1->getMessage()
+                        'message' => "không tìm thấy idquan =" . $id
                     ]);
                 }
-            }
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'quan' => $quan,
+                    'person' => 'admin'
 
-            if ($request->header('tokenInnkeeper')) {
-                try {
-                    $token = $this->checkTokenService->checkTokenInnkeeper($request);
-                    if (count($token) > 0) {
-                        $quan = $this->quanService->findById($id);
-                        if (!$quan) {
-                            return response()->json([
-                                'status' => false,
-                                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                                'message' => "không tìm thấy idquan =" . $id
-                            ]);
-                        }
-                        return response()->json([
-                            'status'  => true,
-                            'code'    => Response::HTTP_OK,
-                            'quan' => $quan,
-                            'person' => 'innkeeper'
-                        ]);
-                    } else {
-                        return response()->json([
-                            'status' => false,
-                            'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                            'message' => "token Innkeeper không đúng"
-                        ]);
-                    }
-                } catch (\Exception $e1) {
-                    return response()->json([
-                        'status' => false,
-                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => $e1->getMessage()
-                    ]);
-                }
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token Admin không đúng"
+                ]);
             }
-
-            if ($request->header('tokenAdmin')) {
-                try {
-                    $token = $this->checkTokenService->checkTokenAdmin($request);
-                    if (count($token) > 0) {
-                        $quan = $this->quanService->findById($id);
-                        if (!$quan) {
-                            return response()->json([
-                                'status' => false,
-                                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                                'message' => "không tìm thấy idquan =" . $id
-                            ]);
-                        }
-                        return response()->json([
-                            'status'  => true,
-                            'code'    => Response::HTTP_OK,
-                            'quan' => $quan,
-                            'person' => 'admin'
-                        
-                        ]);
-                    } else {
-                        return response()->json([
-                            'status' => false,
-                            'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                            'message' => "token Admin không đúng"
-                        ]);
-                    }
-                } catch (\Exception $e1) {
-                    return response()->json([
-                        'status' => false,
-                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => $e1->getMessage()
-                    ]);
-                }
-            }
+        } catch (\Exception $e1) {
             return response()->json([
                 'status' => false,
                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => "không có token"
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => $e->getMessage()
+                'message' => $e1->getMessage()
             ]);
         }
     }

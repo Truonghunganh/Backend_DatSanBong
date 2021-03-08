@@ -10,7 +10,7 @@ class DoanhThu extends Model
     use HasFactory;
     protected $fillable = [
         'idquan',
-        'doanhthutheothang',
+        'doanhthu',
         'time',
     ];
     public $timestamps = false;
