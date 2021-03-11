@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     /// user 
     Route::resource('quan', 'App\Http\Controllers\Api\V1\QuanController')->only(['index','show', 'destroy']);
-    Route::resource('san', 'App\Http\Controllers\Api\V1\SanController')->only(['index','show']);
+    Route::resource('san', 'App\Http\Controllers\Api\V1\SanController')->only(['show']);
     Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['store', 'destroy']);
     Route::post('getQuanByIdAndTokenUser', 'App\Http\Controllers\Api\V1\QuanController@getQuanByIdAndTokenUser');
     
@@ -27,7 +27,10 @@ Route::prefix('v1')->group(function () {
     
     Route::post('loginUser', 'App\Http\Controllers\Api\V1\UserController@loginUser')->name('loginUser');
     Route::get('checkTokenUser', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenUser');
-
+    Route::get('getAllQuanDangHoatdongByUser', 'App\Http\Controllers\Api\V1\QuanController@getAllQuanDangHoatdongByUser');
+    Route::post('reviewByUser', 'App\Http\Controllers\Api\V1\ReviewController@reviewByUser');
+    Route::get('getDatSansvaSansByUserAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByUserAndIdquanAndNgay');
+    
     // chủ quán : quản lý các quán của mình 
     Route::get('checkTokenInnkeeper', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');
     Route::post('loginInnkeeper', 'App\Http\Controllers\Api\V1\ChuQuanController@loginInnkeeper');
@@ -65,11 +68,13 @@ Route::prefix('v1')->group(function () {
     Route::get('getListQuansDaPheDuyetByTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@getListQuansDaPheDuyetByTokenAdmin');
     Route::get('getListQuansChuaPheDuyetByTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@getListQuansChuaPheDuyetByTokenAdmin');
     Route::put('UpdateTrangThaiQuanTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@UpdateTrangThaiQuanTokenAdmin');
-    Route::post('getDanhThuByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDanhThuByAdmin');
-    Route::post('getDanhThuListQuanByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDanhThuListQuanByAdmin');
+    Route::post('getDoanhThuByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuByAdmin');
+    Route::post('getDoanhThuListQuanByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuListQuanByAdmin');
+    Route::post('getDoanhThuCuaAdminTheoNam', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuCuaAdminTheoNam');
+    Route::post('getDatSansvaSansByAdminAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByAdminAndIdquanAndNgay');
             
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+// getDanhThuCuaAdminTheoNam    return $request->user();
+// });getDatSansvaSansByAdminAndIdquanAndNgay

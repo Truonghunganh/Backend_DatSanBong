@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Services\SanService;
 use App\Services\QuanService;
 use App\Services\DoanhThuService;
+use App\Services\ReviewService;
 
 class DatSanController extends Controller 
 {
@@ -18,18 +19,21 @@ class DatSanController extends Controller
     protected $sanService;
     protected $checkTokenService;
     protected $doanhThuService;
+    protected $reviewService;
     public function __construct(
         DatSanService $datSanService,
         CheckTokenService $checkTokenService,
         SanService $sanService, 
         QuanService $quanService,
-        DoanhThuService $doanhThuService
+        DoanhThuService $doanhThuService,
+        ReviewService $reviewService
         ){
         $this->datSanService = $datSanService;
         $this->checkTokenService = $checkTokenService;
         $this->sanService = $sanService;
         $this->quanService = $quanService;
         $this->doanhThuService = $doanhThuService;
+        $this->reviewService = $reviewService;
     }
 
     // show là add data lên (để thêm vào)
@@ -320,7 +324,7 @@ class DatSanController extends Controller
             ]);
         }
     }
-
+    
     public function getDatSansvaSansByInnkeeperAndIdquanAndNgay(Request $request)
     {
         try {
@@ -339,7 +343,14 @@ class DatSanController extends Controller
 
             $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
             if (count($innkeeper) > 0) {
-                $quan = $this->quanService->findById($request->get('idquan'));
+                $quan = $this->quanService->findByIdVaTrangThai($request->get('idquan'),1);
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "ban không có quyền truy cập đến quán này"
+                    ]);
+                }
                 if ($innkeeper[0]->phone != $quan->phone) {
                     return response()->json([
                         'status' => false,
@@ -353,7 +364,7 @@ class DatSanController extends Controller
                     'status' => true,
                     'code' => Response::HTTP_OK,
                     'datsans' => $datsans,
-                    'sans' => $sans
+                    'sans' => $sans,
                 ]);
             } else {
                 return response()->json([
@@ -370,6 +381,117 @@ class DatSanController extends Controller
             ]);
         }
     }
+
+    public function getDatSansvaSansByUserAndIdquanAndNgay(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'idquan' => 'required',
+                'start_time' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $user = $this->checkTokenService->checkTokenUser($request);
+            if (count($user) > 0) {
+                $quan = $this->quanService->findByIdVaTrangThai($request->get('idquan'),1);
+                if(!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "ban không có quyền truy cập đến quán này"
+                    ]); 
+                }
+                $sans = $this->sanService->getSansByIdquan($request->get('idquan'));
+                $datsans =  $this->datSanService->getDatSansByIdquanVaNgay($sans,$request->get('start_time'));            
+                $reviewcuauser=0;
+                $review= $this->reviewService->findReviewByIduserVaIdquan($user[0]->id, $request->get("idquan"));
+                if($review){
+                    $reviewcuauser=$review->review;
+                }
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'datsans' => $datsans,
+                    'sans' => $sans,
+                    'quan' => $quan,
+                    'reviewcuauser'=> $reviewcuauser
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getDatSansvaSansByAdminAndIdquanAndNgay(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'idquan' => 'required',
+                'start_time' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $admin = $this->checkTokenService->checkTokenAdmin($request);
+            if (count($admin) > 0) {
+                $quan = $this->quanService->findById($request->get('idquan'));
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không quán này trong hệ thống"
+                    ]);
+                }
+                
+                $sans = $this->sanService->getSansByIdquan($request->get('idquan'));
+                $datsans = $this->datSanService->getDatSansByInnkeeperAndIdquanAndNgay($sans,  $request->get("start_time"));
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'datsans' => $datsans,
+                    'sans' => $sans,
+                    'quan'=>$quan
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+
 
 
     public function getAllDatSanByInnkeeperAndIdquan(Request $request)

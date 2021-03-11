@@ -27,7 +27,50 @@ class DoanhThuController extends Controller
         $this->checkTokenService = $checkTokenService;
         $this->quanService = $quanService;
     }
-    
+    public function getDoanhThuCuaAdminTheoNam(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'nam' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            if (!is_int($request->get('nam'))) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "năm yêu cầu phải là số"
+                ]);
+            }
+            $token = $this->checkTokenService->checkTokenAdmin($request);
+            if (count($token) > 0) {
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'laixuat' =>"1%",
+                    'doanhthustheonam' => $this->doanhThuService->getDoanhThuCuaAdminTheoNam($request->get('nam'))
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     public function getDoanhThuByInnkeeper(Request $request){
         try {
             $validator = Validator::make($request->all(), [
@@ -149,7 +192,7 @@ class DoanhThuController extends Controller
             ]);
         }
     }
-    public function getDanhThuByAdmin(Request $request)
+    public function getDoanhThuByAdmin(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -185,7 +228,7 @@ class DoanhThuController extends Controller
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
-                    'danhthus' => $this->doanhThuService->getDoanhThuByInnkeeper($request)
+                    'doanhthus' => $this->doanhThuService->getDoanhThuByInnkeeper($request)
                 ]);
             } else {
                 return response()->json([
@@ -203,7 +246,7 @@ class DoanhThuController extends Controller
         }
     }
 
-    public function getDanhThuListQuanByAdmin(Request $request)
+    public function getDoanhThuListQuanByAdmin(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -223,7 +266,8 @@ class DoanhThuController extends Controller
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
-                    'danhthus' => $this->doanhThuService->getDanhThuListQuanByAdmin($request)
+                    'doanhthus' => $this->doanhThuService->getDoanhThuListQuanByAdmin($request),
+                    'laixuat'=>'1%'
                 ]);
             } else {
                 return response()->json([

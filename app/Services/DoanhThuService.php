@@ -12,6 +12,20 @@ use Carbon\Carbon;
 
 class DoanhThuService
 {
+    public function getDoanhThuCuaAdminTheoNam($nam){
+        $tongdoanhthus = [];
+        $tong = 0;
+        for ($i = 1; $i < 13; $i++) {
+            $doanhthuold = DoanhThu::whereYear("time", $nam)->whereMonth("time", $i)->get();
+            $tong = 0;
+            for ($j = 0; $j < $doanhthuold->count(); $j++) {
+                $tong += $doanhthuold[$j]->doanhthu;
+            }
+            $tong=$tong/100;
+            array_push($tongdoanhthus, $tong);
+        }
+        return $tongdoanhthus;
+    }
     public function getDoanhThuByInnkeeper($request){
         
         $idquan=$request->get("idquan");
@@ -57,7 +71,7 @@ class DoanhThuService
     public function getDoanhThuByIdquanAndTime($idquan,$time){
         return DoanhThu::where('idquan',$idquan)->where('time',$time)->first();
     }
-    public function getDanhThuListQuanByAdmin($request)
+    public function getDoanhThuListQuanByAdmin($request)
     {
         $nam = substr($request->get('time'), 0, 4);
         $thang = substr($request->get('time'), 5, 2);
@@ -72,7 +86,7 @@ class DoanhThuService
             for ($j=0; $j <$doanhthuold->count(); $j++) { 
                 $tien+=(int)$doanhthuold[$j]->doanhthu;
             }
-            array_push($doanhthus, new DanhThuQuan($quans[$i]->id,$quans[$i]->name,$quans[$i]->address,$quans[$i]->phone,$tien));
+            array_push($doanhthus, new DoanhThuQuan($quans[$i]->id,$quans[$i]->name,$quans[$i]->address,$quans[$i]->phone,$tien, $tien/100));
 
         }
         $keys = array_column($doanhthus, 'idquan');
@@ -99,19 +113,22 @@ class DoanhThus
     }
 }
 
-class DanhThuQuan
+class DoanhThuQuan
 {
     public $idquan;
     public $namequan;
     public $addressquan;
     public $phonequan;
-    public $danhthu;
-    public function __construct($idquan, $namequan,$addressquan,$phonequan, $danhthu)
+    public $doanhthuquan;
+    public $doanhthuadmin;
+
+    public function __construct($idquan, $namequan,$addressquan,$phonequan, $doanhthuquan,$doanhthuadmin)
     {
         $this->idquan = $idquan;
         $this->namequan = $namequan;
         $this->addressquan = $addressquan;
         $this->phonequan = $phonequan;
-        $this->danhthu = $danhthu;
+        $this->doanhthuquan = $doanhthuquan;
+        $this->doanhthuadmin = $doanhthuadmin;
     }
 }

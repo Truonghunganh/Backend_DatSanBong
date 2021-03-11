@@ -37,9 +37,13 @@ class QuanService
     {
         return Quan::where('id', $id)->where('trangthai',0)->get();
     }
-    public function getListQuansByTrangthai($trangthai)
+    public function getAllQuansByTrangthai($trangthai)
     {
         return Quan::where('trangthai', $trangthai)->get();
+    }
+    public function getListQuansByTrangthai($trangthai,$soluong)
+    {
+        return Quan::where('trangthai', $trangthai)-> paginate($soluong);
     }
     public function  UpdateTrangThaiQuanTokenAdmin($request){
         return DB::update('update quans set trangthai = ? where id =? ', [$request->get('trangthai'),$request->get('idquan')]);
@@ -54,13 +58,16 @@ class QuanService
         $file=$request->file('image');
         $file->move('image\Quan',$nameImage);
         return DB::insert(
-            'insert into quans (name,image,address,phone,linkaddress,trangthai,Create_time) values (?,?, ?,?, ?,?,?)',
+            'insert into quans (name,image,address,phone,linkaddress,trangthai,vido,kinhdo,review,Create_time) values (?,?, ?,?, ?,?,? ,?,?,?)',
             [
                 $request->get('name'),
                 "image/Quan/".$nameImage,
                 $request->get('address'),
                 $token[0]->phone,
                 $request->get('linkaddress'),
+                0,
+                $request->get('vido'),
+                $request->get('kinhdo'),
                 0,
                 Carbon::now()
 

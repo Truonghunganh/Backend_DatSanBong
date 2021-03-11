@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\API\V1;
 
-use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\QuanService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\CheckTokenService;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\File;
 
 class QuanController extends Controller
 {
@@ -24,11 +22,14 @@ class QuanController extends Controller
        try {
            $checkTokenUser=$this->checkTokenService->checkTokenUser($request);
            if (count($checkTokenUser) > 0) {
+                $soluong = $request->get('soluong') ?? 3;
+                $quans = $this->quanService->getListQuansByTrangthai(1, $soluong);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'quans' =>$this->quanService->getListQuansByTrangthai(1) 
-                ]);   
+                    'quans' => $quans->items(),
+                    'tongpage' => $quans->lastPage()
+                 ]);   
            } else {
                 return response()->json([
                     'status' => false,
@@ -44,6 +45,33 @@ class QuanController extends Controller
             ]);
         }
     }
+    public function getAllQuanDangHoatdongByUser(Request $request)
+    {
+        try {
+            $checkTokenUser = $this->checkTokenService->checkTokenUser($request);
+            if (count($checkTokenUser) > 0) {
+                $quans = $this->quanService->getAllQuansByTrangthai(1);
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'quans' => $quans
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    
     public function getQuanByIdAndTokenInnkeeper(Request $request){
         try {
             $validator = Validator::make($request->all(), [
@@ -182,11 +210,13 @@ class QuanController extends Controller
         try {
             $admin = $this->checkTokenService->checkTokenAdmin($request);
             if (count($admin) > 0) {
-
+                $soluong=$request->get('soluong')??5;
+                $quans= $this->quanService->getListQuansByTrangthai(1, $soluong);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'quans' =>  $this->quanService->getListQuansByTrangthai( 1)
+                    'quans' => $quans->items(),
+                    'tongpage'=>$quans->lastPage()
                 ]);
             } else {
                 return response()->json([
@@ -296,11 +326,13 @@ class QuanController extends Controller
         try {
             $admin = $this->checkTokenService->checkTokenAdmin($request);
             if (count($admin) > 0) {
-
-                return response()->json([
+                $soluong = $request->get('soluong') ?? 5;
+                $quans = $this->quanService->getListQuansByTrangthai(0, $soluong);
+                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'quans' =>  $this->quanService->getListQuansByTrangthai(0)
+                    'quans' => $quans->items(),
+                    'tongpage' => $quans->lastPage()
                 ]);
             } else {
                 return response()->json([
@@ -436,6 +468,8 @@ class QuanController extends Controller
                 'address' => 'required',
                 'image' => 'required',
                 'linkaddress' => 'required',
+                'vido'=> 'required',
+                'kinhdo' => 'required'
             ]);
 
             if ($validator->fails()) {

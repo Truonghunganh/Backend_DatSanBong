@@ -22,6 +22,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0739875",
             "kinhdo" => "108.1533656",
             "trangthai" =>true,
+            "review"=>0,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
@@ -35,6 +36,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0451026",
             "kinhdo" => "108.214369",
             "trangthai" => true,
+            "review" => 0,
             "Create_time" => Carbon::now()
         ];
         
@@ -49,6 +51,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0706259",
             "kinhdo" => "108.1434063",
             "trangthai" => true,
+            "review" => 0,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
@@ -62,6 +65,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0628772",
             "kinhdo" => "108.1564092",
             "trangthai" => true,
+            "review" => 0,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
@@ -75,6 +79,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0708556",
             "kinhdo" => "108.1544331",
             "trangthai" => true,
+            "review" => 0,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
@@ -88,6 +93,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0633224",
             "kinhdo" => "108.1491009",
             "trangthai" => true,
+            "review" => 0,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
@@ -101,6 +107,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0842863",
             "kinhdo" => "108.150894",
             "trangthai" => true,
+            "review" => 0,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
@@ -114,6 +121,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0669193",
             "kinhdo" => "108.1490714",
             "trangthai" => true,
+            "review" => 0,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
@@ -127,6 +135,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0655835",
             "kinhdo" => "108.1483143",
             "trangthai" => true,
+            "review" => 0,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
@@ -140,6 +149,7 @@ class QuanTableSeeder extends Seeder
             "vido" => "16.0471609",
             "kinhdo" => "108.2100709",
             "trangthai" => false,
+            "review" => 0,
             "Create_time" => Carbon::now()
         ];
         DB::table('quans')->insert($data);
