@@ -22,13 +22,11 @@ class QuanController extends Controller
        try {
            $checkTokenUser=$this->checkTokenService->checkTokenUser($request);
            if (count($checkTokenUser) > 0) {
-                $soluong = $request->get('soluong') ?? 3;
-                $quans = $this->quanService->getListQuansByTrangthai(1, $soluong);
+                $quans = $this->quanService->getListQuansByTrangthai(1, $checkTokenUser[0]->id);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'quans' => $quans->items(),
-                    'tongpage' => $quans->lastPage()
+                    'quans' => $quans,
                  ]);   
            } else {
                 return response()->json([
@@ -211,7 +209,7 @@ class QuanController extends Controller
             $admin = $this->checkTokenService->checkTokenAdmin($request);
             if (count($admin) > 0) {
                 $soluong=$request->get('soluong')??5;
-                $quans= $this->quanService->getListQuansByTrangthai(1, $soluong);
+                $quans= $this->quanService->getListQuansByTrangthaiVaPage(1, $soluong);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -327,7 +325,7 @@ class QuanController extends Controller
             $admin = $this->checkTokenService->checkTokenAdmin($request);
             if (count($admin) > 0) {
                 $soluong = $request->get('soluong') ?? 5;
-                $quans = $this->quanService->getListQuansByTrangthai(0, $soluong);
+                $quans = $this->quanService->getListQuansByTrangthaiVaPage(0, $soluong);
                  return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,

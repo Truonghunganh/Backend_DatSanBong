@@ -12,6 +12,9 @@ use Carbon\Carbon;
 
 class DoanhThuService
 {
+    public function getDoanhthuByID($id){
+        return DoanhThu::find($id);
+    }
     public function getDoanhThuCuaAdminTheoNam($nam){
         $tongdoanhthus = [];
         $tong = 0;

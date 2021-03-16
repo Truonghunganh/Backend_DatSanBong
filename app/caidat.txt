@@ -8,7 +8,7 @@ là tạo ra UserController có tất cả các phương thức ( là cái mẫu
 -tạo các bảng trong file database (migrate ): php artisan migrate(chạy hàm up())
 - tạo file dữ liệu : php artisan make:seeder UserSeeder
 -tạo dữ liệu từ các bảng trên : php artisan db:seed
-- Xóa tất cả các bảng : php artisan migrate:rollback(chạy hàm down())
+- Xóa tất cả các bảng : (chạy hàm down())
 
 
 a.	Trong larevel có 7 phương thức
@@ -92,7 +92,7 @@ use HasFactory, Notifiable;
     protected $table = 'users';
     protected $fillable = [
         'name',
-        'email',
+        'email',php artisan migrate:rollback
         'password',
     ];
 

@@ -57,11 +57,13 @@ Route::prefix('v1')->group(function () {
     Route::put('xacNhanDatsanByInnkeeper', 'App\Http\Controllers\Api\V1\DatSanController@xacNhanDatsanByInnkeeper');
     Route::post('getTongDoanhThuTheoNamByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getTongDoanhThuTheoNamByInnkeeper');
     Route::post('getDatSansvaSansByInnkeeperAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByInnkeeperAndIdquanAndNgay');
+    Route::post('getChiTietDanhthuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getChiTietDanhthuByInnkeeper');
     //Route::get('get', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');
 
     Route::post('thu', 'App\Http\Controllers\Api\V1\CheckTokenController@thu');
     
-    // admin : quản lý các quán getDatSansvaSansByInnkeeperAndIdquanAndNgay
+    // admin : quản lý các quán getDatSansvaSansByInnkeeperAndIdquanAndNgay,Route::post('getDoanhThuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuByInnkeeper');
+    
     Route::get('checkTokenAdmin', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenAdmin');
     Route::post('loginAdmin', 'App\Http\Controllers\Api\V1\AdminController@loginAdmin');
     Route::put('editAdminByToken', 'App\Http\Controllers\Api\V1\AdminController@editAdminByToken');
@@ -72,9 +74,11 @@ Route::prefix('v1')->group(function () {
     Route::post('getDoanhThuListQuanByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuListQuanByAdmin');
     Route::post('getDoanhThuCuaAdminTheoNam', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuCuaAdminTheoNam');
     Route::post('getDatSansvaSansByAdminAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByAdminAndIdquanAndNgay');
+    Route::post('getChiTietDanhthuCuaMotQuanByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getChiTietDanhthuCuaMotQuanByAdmin');
+    Route::post('getTongDoanhCuaMotQuanThuTheoNamByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getTongDoanhCuaMotQuanThuTheoNamByAdmin');
             
 });
 
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
+// Route::middleware('auth:api')->get('/user', function (Request $request) {getTongDoanhCuaMotQuanThuTheoNamByAdmin
 // getDanhThuCuaAdminTheoNam    return $request->user();
-// });getDatSansvaSansByAdminAndIdquanAndNgay
+// });getDatSansvaSansByAdminAndIdquanAndNgay; getChiTietDanhthuCuaMotQuanByAdmin

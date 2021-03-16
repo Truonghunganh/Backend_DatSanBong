@@ -40,6 +40,21 @@ class DatSanController extends Controller
     public function store(Request $request)
     {
        try {
+            $validator = Validator::make($request->all(), [
+                
+                'idsan' => 'required',
+                'price'=> 'required',
+                'start_time' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
             $tonkenUser=$this->checkTokenService->checkTokenUser($request);
             if(count($tonkenUser)> 0){
                 date_default_timezone_set("Asia/Ho_Chi_Minh");
@@ -54,7 +69,7 @@ class DatSanController extends Controller
 
                 }
         
-                $datsan = $this->datSanService->addDatSan($request);
+                $datsan = $this->datSanService->addDatSan($request,$tonkenUser[0]->id);
                 if ($datsan) {
                     return response()->json([
                         'status'  => true,
@@ -208,14 +223,14 @@ class DatSanController extends Controller
                 }
                 $time=substr($datsan->start_time,0,10). " 00:00:00";
                 $doanhthu = $this->doanhThuService->getDoanhThuByIdquanAndTime($san->idquan,$time);
-                $week = strtotime(date("Y-m-d", strtotime(date('Y-m-d'))) . " -1 week");
-                $week = strftime("%Y-%m-%d", $week)." 00:00:00";
+                // $week = strtotime(date("Y-m-d", strtotime(date('Y-m-d'))) . " -1 week");
+                // $week = strftime("%Y-%m-%d", $week)." 00:00:00";
                 if($datsan->xacnhan==1&&$doanhthu){
                     $tien=(int)$doanhthu->doanhthu-(int)$datsan->price;
 
                     $this->doanhThuService->TruDoanhThuCuaQuan($doanhthu->id,$tien);
                 }
-                $ds= $this->datSanService->updateDatsan($id,$week);
+                $ds= $this->datSanService->deleteDatsan($id);
                 if ($ds) {
                     return response()->json([
                         'status' => true,
@@ -294,7 +309,7 @@ class DatSanController extends Controller
                         'message' => "token này không có quyền tri cập đến quán này"
                     ]);
                 }
-                $xacnhan = $this->datSanService->xacNhanDatsan($request->get('iddatsan'),1,$datsan->start_time,$datsan->price,$san);
+                $xacnhan = $this->datSanService->xacNhanDatsan($datsan,1,$datsan->start_time,$datsan->price,$san);
                 if ($xacnhan) {
                     return response()->json([
                         'status' => true,
@@ -521,7 +536,7 @@ class DatSanController extends Controller
                         'message' => "token này không có quyền tri cập đến quán này"
                     ]); 
                 }
-                $datsans = $this->datSanService->getAllDatSanByIdquan($request->get("idquan"),$request->get("trangthai"),$request->get("time"));
+                $datsans = $this->datSanService->getAllDatSanByIdquan($request->get("idquan"),$request->get("trangthai"),$request->get("time"),">=");
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -580,14 +595,14 @@ class DatSanController extends Controller
                         'message' => "không tìm thấy sân có id = " . $request->get('idsanNew')
                     ]);
                 }
-                if (count($this->datSanService->checkdatsan($request->get('idsanOld'), $request->get('timeOld')))==0) {
+                if (count($this->datSanService->getdatsan($request->get('idsanOld'), $request->get('timeOld')))==0) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
                         'message' => "đặt sân củ chưa được đặt nên bạn không thể thay đổi "
                     ]);
                 }
-                if (count($this->datSanService->checkdatsan($request->get('idsanNew'), $request->get('timeNew'))) >0) {
+                if (count($this->datSanService->getdatsan($request->get('idsanNew'), $request->get('timeNew'))) >0) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,

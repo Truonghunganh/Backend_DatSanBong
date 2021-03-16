@@ -14,13 +14,13 @@ class QuanTableSeeder extends Seeder
     {
         //1
         $data = [
-            "name" => "MU",
+            "name" => "Sân bóng - Đại học bách khoa",
             "image"=>"image/Quan/mu.jpg",
             "address"=>"60-Ngô Sĩ liên-Đà nẵng",
             "phone" => "0812250590",
-            "linkaddress" => "https://www.google.com/maps/place/60+Ngô+Sĩ+Liên,+Hoà+Khánh+Bắc,+Liên+Chiểu,+Đà+Nẵng+550000,+Việt+Nam/@16.0739926,108.1511769,17z/data=!3m1!4b1!4m5!3m4!1s0x314218d76b1a334f:0xeca62349bfbee122!8m2!3d16.0739875!4d108.1533656?hl=vi-VN",
-            "vido" => "16.0739875",
-            "kinhdo" => "108.1533656",
+            "linkaddress" => "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+-+%C4%90%E1%BA%A1i+h%E1%BB%8Dc+b%C3%A1ch+khoa,+Ho%C3%A0+Kh%C3%A1nh+B%E1%BA%AFc,+Li%C3%AAn+Chi%E1%BB%83u,+%C4%90%C3%A0+N%E1%BA%B5ng+550000,+Vi%E1%BB%87t+Nam/@16.0736302,108.1521688,17z/data=!3m1!4b1!4m5!3m4!1s0x314218d763876437:0x8b64a3ef3c6b3e58!8m2!3d16.0737726!4d108.1543554?hl=vi-VN",
+            "vido" => "16.0737726",
+            "kinhdo" => "108.1543554",
             "trangthai" =>true,
             "review"=>0,
             "Create_time" => Carbon::now()
@@ -154,5 +154,67 @@ class QuanTableSeeder extends Seeder
         ];
         DB::table('quans')->insert($data);
         
+        $names = ["Khu Bóng Đá Thủy Lợi", "Sân bóng đá Phương Tuấn-Hội An", "Sân vận động Hội An"
+            ,"Sân vận động Cẩm Châu", "Sân Bóng Đá Cỏ Tự Nhiên"];
+        $images = ['image/Quan/hunganh.jpg', 'image/Quan/i.jpg', 'image/Quan/k.jpg', 'image/Quan/m.jpg', 'image/Quan/n.jpg'];
+        $diachis = ["24 Phan Bá Phiến, Tân An, Hội An, Quảng Nam", "02B Thái Phiên, Phường Minh An, Hội An, Quảng Nam 560000, Việt Nam", "18 Lý Thường Kiệt, Sơn Phong, Hội An, Quảng Nam, Việt Nam",
+            "Cẩm Châu, Hội An, Quảng Nam, Việt Nam", "168 Nguyễn Trãi, Tây Lộc, Thành phố Huế, Thừa Thiên Huế, Việt Nam"];
+        $phones = ["0374894200", "0374894201", "0374894202", "0374894203", "0374894204"];
+        
+        $linkaddress = [
+            "https://www.google.com/maps/place/24+Phan+Bá+Phiến,+Tân+An,+Hội+An,+Quảng+Nam,+Việt+Nam/@15.8777916,108.3194347,17z/data=!4m13!1m7!3m6!1s0x31420e70f774b22f:0x9481a7e45e60d5c1!2zMjQgUGhhbiBCw6EgUGhp4bq_biwgVMOibiBBbiwgSOG7mWkgQW4sIFF14bqjbmcgTmFtLCBWaeG7h3QgTmFt!3b1!8m2!3d15.8871269!4d108.3241001!3m4!1s0x31420e70f774b22f:0x9481a7e45e60d5c1!8m2!3d15.8871269!4d108.3241001?hl=vi-VN",
+            "https://www.google.com/maps/place/Sân+bóng+đá+Phương+Tuấn-Hội+An/@15.881449,108.3268398,17z/data=!4m13!1m7!3m6!1s0x31420e791a6930ff:0x18f239fe251c1720!2zMiBUaMOhaSBQaGnDqm4sIFBoxrDhu51uZyBNaW5oIEFuLCBI4buZaSBBbiwgUXXhuqNuZyBOYW0sIFZp4buHdCBOYW0!3b1!8m2!3d15.8814439!4d108.3290285!3m4!1s0x0:0x8792a03837874555!8m2!3d15.8811413!4d108.3314402?hl=vi-VN",
+            "https://www.google.com/maps/place/Sân+vận+động+Hội+An/@15.881449,108.3268398,17z/data=!4m13!1m7!3m6!1s0x31420e791a6930ff:0x18f239fe251c1720!2zMiBUaMOhaSBQaGnDqm4sIFBoxrDhu51uZyBNaW5oIEFuLCBI4buZaSBBbiwgUXXhuqNuZyBOYW0sIFZp4buHdCBOYW0!3b1!8m2!3d15.8814439!4d108.3290285!3m4!1s0x31420e78f76c34bf:0xfd515cbe1ce08065!8m2!3d15.8818761!4d108.3308107?hl=vi-VN",
+            "https://www.google.com/maps/place/Sân+vận+động+Cẩm+Châu,+Cẩm+Châu,+Hội+An,+Quảng+Nam,+Việt+Nam/@15.8816799,108.3425788,17z/data=!4m13!1m7!3m6!1s0x31420e791a6930ff:0x18f239fe251c1720!2zMiBUaMOhaSBQaGnDqm4sIFBoxrDhu51uZyBNaW5oIEFuLCBI4buZaSBBbiwgUXXhuqNuZyBOYW0sIFZp4buHdCBOYW0!3b1!8m2!3d15.8814439!4d108.3290285!3m4!1s0x31420dd04ee838e7:0x30b2fe82d10b9b07!8m2!3d15.8817063!4d108.3428624?hl=vi-VN",
+            "https://www.google.com/maps/place/Sân+Bóng+Đá+Cỏ+Tự+Nhiên/@16.4724469,107.5684767,17z/data=!4m8!1m2!2m1!1zc8OibiBiw7NuZyDhu58gSHXhur8!3m4!1s0x0:0xbbb0edcac33334b1!8m2!3d16.4734158!4d107.5682927?hl=vi-VN"
+
+        ];
+        $vidos=["15.8871269", "15.8811413", "15.8818761", "15.8817063", "16.4734158"];
+        $kinhdos = ["108.3241001", "108.3314402", "108.3308107", "108.3428624", "107.5682927"];
+        for ($i=0; $i < 5; $i++) {
+            $data = [
+                "name" => $names[$i],
+                "image" => $images[$i],
+                "address" => $diachis[$i],
+                "phone" => $phones[$i],
+                "linkaddress" => $linkaddress[$i],
+                "vido" => $vidos[$i],
+                "kinhdo" => $kinhdos[$i],
+                "trangthai" => true,
+                "review" => 0,
+                "Create_time" => Carbon::now()
+            ];
+            DB::table('quans')->insert($data);
+            $quan= DB::table('quans')->where("phone",$phones[$i])->first();
+            $data = [
+                "name" => "Sân A",
+                "idquan" => $quan->id,
+                "numberpeople" => 11,
+                "priceperhour" => 300000,
+                "trangthai" => true,
+                "Create_time" => Carbon::now()
+            ];
+            DB::table('sans')->insert($data);
+            $data = [
+                "name" => "Sân B",
+                "idquan" =>$quan->id,
+                "numberpeople" => 5,
+                "priceperhour" => 150000,
+                "trangthai" => true,
+                "Create_time" => Carbon::now()
+            ];
+            DB::table('sans')->insert($data);
+            $data = [
+                "name" => "Sân C",
+                "idquan" => $quan->id,
+                "numberpeople" => 7,
+                "priceperhour" => 200000,
+                "trangthai" => true,
+                "Create_time" => Carbon::now()
+            ];
+            DB::table('sans')->insert($data);
+        
+        }
+
     }
 }

@@ -41,9 +41,27 @@ class QuanService
     {
         return Quan::where('trangthai', $trangthai)->get();
     }
-    public function getListQuansByTrangthai($trangthai,$soluong)
+    public function getListQuansByTrangthaiVaPage($trangthai,$soluong){
+        return Quan::where('trangthai',$trangthai)->paginate($soluong);
+    }
+    public function getListQuansByTrangthai($trangthai,$iduser)
     {
-        return Quan::where('trangthai', $trangthai)-> paginate($soluong);
+        $quans= Quan::where('trangthai', $trangthai)->get();
+        $quansnew=[];
+        for ($i=0; $i <count($quans) ; $i++) { 
+            $chonquan = DB::table('chonquans')->where("iduser", $iduser)->where('idquan',$quans[$i]->id)->first();
+            $solan=0;
+            if ($chonquan) {
+                $solan=$chonquan->solan;
+            }
+            array_push($quansnew, new Quan1($quans[$i]->id,$quans[$i]->name,$quans[$i]->image,$quans[$i]->address,$quans[$i]->phone,$quans[$i]->linkaddress,$quans[$i]->vido,$quans[$i]->kinhdo,$quans[$i]->review,$solan));
+
+        }
+        $keys = array_column($quansnew, 'solan');
+        array_multisort($keys, SORT_DESC, $quansnew);
+        return $quansnew;
+       
+
     }
     public function  UpdateTrangThaiQuanTokenAdmin($request){
         return DB::update('update quans set trangthai = ? where id =? ', [$request->get('trangthai'),$request->get('idquan')]);
@@ -139,4 +157,32 @@ class QuanService
         return false;
     }
 
+}
+
+class Quan1
+{
+    public $id;
+    public $name;
+    public $image;
+    public $address;
+    public $phone;
+    public $linkaddress;
+    public $vido;
+    public $kinhdo;
+    public $review;
+    public $solan;
+    
+    public function __construct($id, $name, $image, $address, $phone, $linkaddress,$vido,$kinhdo,$review,$solan)
+    {
+        $this->id = $id;
+        $this->name = $name;
+        $this->image = $image;
+        $this->address = $address;
+        $this->phone= $phone;
+        $this->linkaddress = $linkaddress;
+        $this->vido = $vido;
+        $this->kinhdo = $kinhdo;
+        $this->review = $review;
+        $this->solan = $solan;
+    }
 }

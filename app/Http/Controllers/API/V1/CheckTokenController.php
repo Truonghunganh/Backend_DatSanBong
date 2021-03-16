@@ -27,6 +27,8 @@ class CheckTokenController extends Controller
     }
     public function thu(Request $request)
     {
+        return mt_rand(2, 4);
+
         $a=7;
         return $a/4;
         return mt_rand(0, 2) ;
