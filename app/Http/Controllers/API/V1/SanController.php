@@ -55,7 +55,7 @@ class SanController extends Controller
             if ($request->header('tokenUser')) {
                 try {
                     $token = $this->checkTokenService->checkTokenUser($request);
-                    if (count($token) > 0) {
+                    if ($token) {
                         return response()->json([
                             'status'  => true,
                             'code'    => Response::HTTP_OK,
@@ -81,7 +81,7 @@ class SanController extends Controller
             if ($request->header('tokenInnkeeper')) {
                 try {
                     $token = $this->checkTokenService->checkTokenInnkeeper($request);
-                    if (count($token) > 0) {
+                    if ($token)  {
                         return response()->json([
                             'status'  => true,
                             'code'    => Response::HTTP_OK,
@@ -107,7 +107,7 @@ class SanController extends Controller
             if ($request->header('tokenAdmin')) {
                 try {
                     $token = $this->checkTokenService->checkTokenAdmin($request);
-                    if (count($token) > 0) {
+                    if ($token) {
                         return response()->json([
                             'status'  => true,
                             'code'    => Response::HTTP_OK,
@@ -170,10 +170,10 @@ class SanController extends Controller
                 
             }
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
+            if ($token) {
                 $quan=$this->quanService->findById($request->get("idquan"));
                 if ($quan) {
-                    if($token[0]->phone==$quan->phone){
+                    if($token->phone==$quan->phone){
                         $san=$this->sanService->addSanByInnkeeper($request);
                         if ($san) {
                             return response()->json([
@@ -249,7 +249,7 @@ class SanController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
+            if ($token) {
                 $san=$this->sanService->findById($request->get('id'));
               
                 if (!$san) {
@@ -262,7 +262,7 @@ class SanController extends Controller
                 }
                 $quan = $this->quanService->findById($san->idquan);
                 if ($quan) {
-                    if ($token[0]->phone == $quan->phone) {
+                    if ($token->phone == $quan->phone) {
                         $san = $this->sanService->editSanByInnkeeper($request);
                         if ($san) {
                             return response()->json([

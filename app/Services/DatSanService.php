@@ -286,7 +286,7 @@ class DatSanService
         return $datsansnew;
     }
     public function getListDatSanByInnkeeper($innkeeper,$start_time){
-        $quans=$this->quanService->getQuanByPhoneDaduocduyet( $innkeeper[0]->phone);
+        $quans=$this->quanService->getQuanByPhoneDaduocduyet( $innkeeper->phone);
         $datsans = array();
         
         foreach ($quans as $quan) {

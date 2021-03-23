@@ -39,7 +39,7 @@ class DatSanController extends Controller
     // show là add data lên (để thêm vào)
     public function store(Request $request)
     {
-       try {
+        try {
             $validator = Validator::make($request->all(), [
                 
                 'idsan' => 'required',
@@ -56,7 +56,7 @@ class DatSanController extends Controller
             }
 
             $tonkenUser=$this->checkTokenService->checkTokenUser($request);
-            if(count($tonkenUser)> 0){
+            if($tonkenUser){
                 date_default_timezone_set("Asia/Ho_Chi_Minh");
                 $time = date('Y-m-d h:i:s');
 
@@ -69,7 +69,7 @@ class DatSanController extends Controller
 
                 }
         
-                $datsan = $this->datSanService->addDatSan($request,$tonkenUser[0]->id);
+                $datsan = $this->datSanService->addDatSan($request,$tonkenUser->id);
                 if ($datsan) {
                     return response()->json([
                         'status'  => true,
@@ -105,8 +105,8 @@ class DatSanController extends Controller
     public function getListDatSanByUserToken(Request $request){
         try {
             $userbyToken=$this->checkTokenService->checkTokenUser($request);
-            if (count($userbyToken)>0) {
-                $id=$userbyToken[0]->id;
+            if ($userbyToken) {
+                $id=$userbyToken->id;
                 $datsans= $this->datSanService->getListDatSanByIduser($id);
                 if (count($datsans)==0) {
                     return response()->json([
@@ -153,7 +153,7 @@ class DatSanController extends Controller
             }
 
             $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($innkeeper) > 0) {
+            if ($innkeeper) {
                 $datsans = $this->datSanService->getListDatSanByInnkeeper($innkeeper,$request->get("start_time"));
                 if (count($datsans) == 0) {
                     return response()->json([
@@ -186,7 +186,7 @@ class DatSanController extends Controller
     public function destroy(Request $request,$id){
         try {
             $user = $this->checkTokenService->checkTokenUser($request);
-            if (count($user) > 0) {
+            if ($user) {
                 $datsan = $this->datSanService->find($id);
                 if (!$datsan) {
                     return response()->json([
@@ -196,7 +196,7 @@ class DatSanController extends Controller
                     ]);
                 }
                 
-                if ($user[0]->id != $datsan->iduser) {
+                if ($user->id != $datsan->iduser) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -275,7 +275,7 @@ class DatSanController extends Controller
             }
 
             $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($innkeeper) > 0) {
+            if ($innkeeper) {
                 $datsan=$this->datSanService->getDatSanById($request->get('iddatsan'),false);
                 if(!$datsan) {
                     return response()->json([
@@ -357,7 +357,7 @@ class DatSanController extends Controller
             }
 
             $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($innkeeper) > 0) {
+            if ($innkeeper) {
                 $quan = $this->quanService->findByIdVaTrangThai($request->get('idquan'),1);
                 if (!$quan) {
                     return response()->json([
@@ -366,7 +366,7 @@ class DatSanController extends Controller
                         'message' => "ban không có quyền truy cập đến quán này"
                     ]);
                 }
-                if ($innkeeper[0]->phone != $quan->phone) {
+                if ($innkeeper->phone != $quan->phone) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -414,7 +414,7 @@ class DatSanController extends Controller
             }
 
             $user = $this->checkTokenService->checkTokenUser($request);
-            if (count($user) > 0) {
+            if ($user) {
                 $quan = $this->quanService->findByIdVaTrangThai($request->get('idquan'),1);
                 if(!$quan) {
                     return response()->json([
@@ -426,7 +426,7 @@ class DatSanController extends Controller
                 $sans = $this->sanService->getSansByIdquan($request->get('idquan'));
                 $datsans =  $this->datSanService->getDatSansByIdquanVaNgay($sans,$request->get('start_time'));            
                 $reviewcuauser=0;
-                $review= $this->reviewService->findReviewByIduserVaIdquan($user[0]->id, $request->get("idquan"));
+                $review= $this->reviewService->findReviewByIduserVaIdquan($user->id, $request->get("idquan"));
                 if($review){
                     $reviewcuauser=$review->review;
                 }
@@ -471,7 +471,7 @@ class DatSanController extends Controller
             }
 
             $admin = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($admin) > 0) {
+            if ($admin) {
                 $quan = $this->quanService->findById($request->get('idquan'));
                 if (!$quan) {
                     return response()->json([
@@ -527,9 +527,9 @@ class DatSanController extends Controller
             }
 
             $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($innkeeper) > 0) {
+            if ($innkeeper)  {
                 $quan= $this->quanService->findById($request->get('idquan'));
-                if($innkeeper[0]->phone!=$quan->phone){
+                if($innkeeper->phone!=$quan->phone){
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -577,7 +577,7 @@ class DatSanController extends Controller
             }
 
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
+            if ($token) {
                 $sanOld = $this->sanService->findById($request->get('idsanOld'));
                 $sanNew = $this->sanService->findById($request->get('idsanNew'));
 
@@ -626,7 +626,7 @@ class DatSanController extends Controller
                     ]);
                 }
 
-                if ($token[0]->phone == $quanOld->phone&&$quanNew->phone == $quanOld->phone) {
+                if ($token->phone == $quanOld->phone&&$quanNew->phone == $quanOld->phone) {
                     $san = $this->datSanService->thayDoiDatSanByInnkeeper($request,$sanOld,$sanNew);
                     if ($san) {
                         return response()->json([

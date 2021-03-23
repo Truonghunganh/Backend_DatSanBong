@@ -81,11 +81,11 @@ class AdminController extends Controller
                 ]);
             }
             $checktoken = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($checktoken) > 0) {
+            if ($checktoken) {
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'token' => $this->adminService->editAdminByToken($request, $checktoken[0]->id)
+                    'token' => $this->adminService->editAdminByToken($request, $checktoken->id)
                 ]);
             } else {
                 return response()->json([

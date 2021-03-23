@@ -21,8 +21,8 @@ class QuanController extends Controller
     { 
        try {
            $checkTokenUser=$this->checkTokenService->checkTokenUser($request);
-           if (count($checkTokenUser) > 0) {
-                $quans = $this->quanService->getListQuansByTrangthai(1, $checkTokenUser[0]->id);
+           if ($checkTokenUser) {
+                $quans = $this->quanService->getListQuansByTrangthai(1, $checkTokenUser->id);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -47,7 +47,7 @@ class QuanController extends Controller
     {
         try {
             $checkTokenUser = $this->checkTokenService->checkTokenUser($request);
-            if (count($checkTokenUser) > 0) {
+            if ($checkTokenUser) {
                 $quans = $this->quanService->getAllQuansByTrangthai(1);
                 return response()->json([
                     'status' => true,
@@ -85,7 +85,7 @@ class QuanController extends Controller
             }
            
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
+            if ($token) {
                 $id=$request->get('idquan');
                 $quan = $this->quanService->findById($id);
                 if (!$quan) {
@@ -95,7 +95,7 @@ class QuanController extends Controller
                         'message' => "không tìm thấy idquan =" . $id
                     ]);
                 }
-                if ($token[0]->phone != $quan->phone) {
+                if ($token->phone != $quan->phone) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -137,7 +137,7 @@ class QuanController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenUser($request);
-            if (count($token) > 0) {
+            if ($token) {
                 $idquan = $request->get("idquan");
                 $quan = $this->quanService->findByIdVaTrangThai($idquan,1);
                 if (!$quan) {
@@ -172,7 +172,7 @@ class QuanController extends Controller
     {
         try {
             $token = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($token) > 0) {
+            if ($token) {
                 $quan = $this->quanService->findById($id);
                 if (!$quan) {
                     return response()->json([
@@ -207,7 +207,7 @@ class QuanController extends Controller
     {
         try {
             $admin = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($admin) > 0) {
+            if ($admin) {
                 $soluong=$request->get('soluong')??5;
                 $quans= $this->quanService->getListQuansByTrangthaiVaPage(1, $soluong);
                 return response()->json([
@@ -234,7 +234,7 @@ class QuanController extends Controller
     public function destroy(Request $request,$id){
         try {
             $admin = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($admin) > 0) {
+            if ($admin) {
                 $quan= $this->quanService->findById($id);
                 if (!$quan) {
                     return response()->json([
@@ -276,7 +276,7 @@ class QuanController extends Controller
         try {
             
             $admin = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($admin) > 0) {
+            if ($admin)  {
                 $validator = Validator::make($request->all(), [
                     'trangthai' => 'required',
                     'idquan'=>'required'
@@ -323,7 +323,7 @@ class QuanController extends Controller
     {
         try {
             $admin = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($admin) > 0) {
+            if ($admin) {
                 $soluong = $request->get('soluong') ?? 5;
                 $quans = $this->quanService->getListQuansByTrangthaiVaPage(0, $soluong);
                  return response()->json([
@@ -351,7 +351,7 @@ class QuanController extends Controller
     public function getListQuansByTokenInnkeeper(Request $request){
         try {
             $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($innkeeper) > 0) {
+            if ($innkeeper) {
                  
                 return response()->json([
                     'status' => true,
@@ -376,7 +376,7 @@ class QuanController extends Controller
     public function getListQuansByTokenInnkeeperChuaPheDuyet(Request $request){
         try {
             $innkeeper = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($innkeeper) > 0) {
+            if ($innkeeper) {
 
                 return response()->json([
                     'status' => true,
@@ -412,7 +412,7 @@ class QuanController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
+            if($token)  {
                 $quan= $this->quanService->findQuanChuaduyetById($request->get('idquan'));
                 if (count($quan)==0) {
                     return response()->json([
@@ -421,7 +421,7 @@ class QuanController extends Controller
                         'message' => "không có idquan hoặc idquan này bạn không quyền  xóa"
                     ]);
                 }
-                if($token[0]->phone==$quan[0]->phone){
+                if($token->phone==$quan[0]->phone){
                     if ($this->quanService->deleteQuanById($request->get("idquan"))) {
                         return response()->json([
                             'status' => true,
@@ -478,7 +478,7 @@ class QuanController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
+            if ($token) {
                 if ($request->hasFile('image')) {
                     $quan = $this->quanService->addQuanByInnkeeper($request, $token);
                     if ($quan) {
@@ -534,10 +534,10 @@ class QuanController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
-                $getQuanById=$this->quanService->getQuanById($request);
-                if (count($getQuanById) > 0) {
-                    if ($getQuanById[0]->phone==$token[0]->phone) {
+            if ($token) {
+                $getQuanById=$this->quanService->findById($request->get('id'));
+                if ($getQuanById)  {
+                    if ($getQuanById->phone==$token->phone) {
                     
                         $quan = $this->quanService->editQuanByTokenInnkeeper($request, $getQuanById);
                         if ($quan) {
@@ -586,5 +586,43 @@ class QuanController extends Controller
                 'message' => $e->getMessage()
             ]);
         }
-    }        
+    }
+    public function searchListQuans(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'search' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+            $token = $this->checkTokenService->checkTokenUser($request);
+            if ($token) {
+                
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'quans' => $this->quanService->searchListQuans($request->get("search"))
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user không đúng"
+                ]);
+            }
+        } catch (\Exception $e1) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e1->getMessage()
+            ]);
+        }
+
+    }   
 }

@@ -35,5 +35,15 @@ class ReviewService
         return Review::where('iduser',$iduser)->where('idquan',$idquan)->first();
         
     }
-        
+    public function getAllReviewByIdquan($idquan){
+        return Review::where('idquan',$idquan)->get();
+    }
+    public function addReview($iduser,$idquan,$review){
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d h:i:s');
+        DB::insert('insert into reviews (iduser, idquan,review,Review_time) values (?, ?,?,?)', [$iduser, $idquan, $review, $time]);
+    }
+    public function findById($id){
+        return Review::find($id);
+    }
 }

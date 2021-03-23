@@ -18,7 +18,7 @@ Route::prefix('v1')->group(function () {
     /// user 
     Route::resource('quan', 'App\Http\Controllers\Api\V1\QuanController')->only(['index','show', 'destroy']);
     Route::resource('san', 'App\Http\Controllers\Api\V1\SanController')->only(['show']);
-    Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['store', 'destroy']);
+    //Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['store', 'destroy']);
     Route::post('getQuanByIdAndTokenUser', 'App\Http\Controllers\Api\V1\QuanController@getQuanByIdAndTokenUser');
     
     Route::get('getListDatSanByUserToken', 'App\Http\Controllers\Api\V1\DatSanController@getListDatSanByUserToken');
@@ -30,6 +30,11 @@ Route::prefix('v1')->group(function () {
     Route::get('getAllQuanDangHoatdongByUser', 'App\Http\Controllers\Api\V1\QuanController@getAllQuanDangHoatdongByUser');
     Route::post('reviewByUser', 'App\Http\Controllers\Api\V1\ReviewController@reviewByUser');
     Route::get('getDatSansvaSansByUserAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByUserAndIdquanAndNgay');
+    Route::resource('comments', 'App\Http\Controllers\Api\V1\CommentController')->only(['index', 'store','update', 'destroy']);
+    Route::get('searchListQuans', 'App\Http\Controllers\Api\V1\QuanController@searchListQuans');
+    
+
+    Route::get('getAllCommentCuaMotQuan', 'App\Http\Controllers\Api\V1\BinhLuanController@getAllCommentCuaMotQuan');
     
     // chủ quán : quản lý các quán của mình 
     Route::get('checkTokenInnkeeper', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');
@@ -76,9 +81,10 @@ Route::prefix('v1')->group(function () {
     Route::post('getDatSansvaSansByAdminAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByAdminAndIdquanAndNgay');
     Route::post('getChiTietDanhthuCuaMotQuanByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getChiTietDanhthuCuaMotQuanByAdmin');
     Route::post('getTongDoanhCuaMotQuanThuTheoNamByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getTongDoanhCuaMotQuanThuTheoNamByAdmin');
+    Route::post('getDoanhThuListQuanCuaMotNamByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuListQuanCuaMotNamByAdmin');
             
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {getTongDoanhCuaMotQuanThuTheoNamByAdmin
-// getDanhThuCuaAdminTheoNam    return $request->user();
+// getDanhThuCuaAdminTheoNam    return $request->user();getDoanhThuListQuanCuaMotNamByAdmin
 // });getDatSansvaSansByAdminAndIdquanAndNgay; getChiTietDanhthuCuaMotQuanByAdmin

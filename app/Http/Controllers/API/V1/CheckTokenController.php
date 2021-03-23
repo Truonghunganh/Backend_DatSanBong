@@ -60,8 +60,8 @@ class CheckTokenController extends Controller
     {
         try {
             $checkToken= $this->checkTokenService->checkTokenUser($request);
-            if (count($checkToken)>0) {
-                $user=new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
+            if ($checkToken) {
+                $user=new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -86,8 +86,8 @@ class CheckTokenController extends Controller
     {
         try {
             $checkToken = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($checkToken) > 0) {
-                $user = new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
+            if ($checkToken) {
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -113,8 +113,8 @@ class CheckTokenController extends Controller
         
         try {
             $checkToken = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($checkToken) > 0) {
-                $user = new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
+            if ($checkToken) {
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -151,7 +151,7 @@ class CheckTokenController extends Controller
             }
 
             $checkToken = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($checkToken) > 0) {
+            if ($checkToken) {
                 $quan = $this->quanService->findById($request->get('idquan'));
                 if($quan->phone!=$checkToken[0]->phone) {
                     return response()->json([
@@ -160,7 +160,7 @@ class CheckTokenController extends Controller
                         'message' => "bạn không có quyền truy cập đến quán này"
                     ]);    
                 }
-                $user = new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -187,7 +187,7 @@ class CheckTokenController extends Controller
     {
         try {
             $checkToken = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($checkToken) > 0) {
+            if ($checkToken) {
                 $san=$this->sanService->findById($request->get("idsan"));
                 if(!$san) {
                     return response()->json([
@@ -198,7 +198,7 @@ class CheckTokenController extends Controller
                     
                 }
                 $quan= $this->quanService->findById($san->idquan);
-                if($quan->phone!=$checkToken[0]->phone) {
+                if($quan->phone!=$checkToken->phone) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -206,7 +206,7 @@ class CheckTokenController extends Controller
                     ]);
         
                 }
-                $user = new User($checkToken[0]->id, $checkToken[0]->name, $checkToken[0]->phone, $checkToken[0]->gmail, $checkToken[0]->address);
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,

@@ -117,11 +117,11 @@ class ChuQuanController extends Controller
                 ]);
             }
             $checktoken = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($checktoken) > 0) {
+            if ($checktoken) {
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'token' => $this->chuquanService->editInnkeeperByToken($request, $checktoken[0]->id)
+                    'token' => $this->chuquanService->editInnkeeperByToken($request, $checktoken->id)
                 ]);
             } else {
                 return response()->json([

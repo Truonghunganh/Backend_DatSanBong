@@ -110,3 +110,126 @@ use HasFactory, Notifiable;
     {
         return $this->hasMany('App\Bills', 'id_customer', 'id');
     }
+
+
+
+
+
+
+
+
+
+
+
+    <?php
+
+namespace App\Http\Controllers\API\V1;
+
+use App\Services\CheckTokenService;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
+use App\Services\QuanService;
+use App\Services\ReviewService;
+use App\Services\CommentService;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class CommentController extends Controller
+{
+    protected $checkTokenService;
+    protected $quanService;
+    protected $commentService;
+    protected $reviewService;
+    public function __construct(
+        CheckTokenService $checkTokenService,
+        QuanService $quanService,
+        ReviewService $reviewService, 
+        CommentService $commentService
+        ){
+        $this->checkTokenService = $checkTokenService;
+        $this->quanService = $quanService;
+        $this->commentService = $commentService;
+        $this->reviewService = $reviewService;
+    }
+    public function getAllCommentCuaMotQuan(Request $request)
+    {
+        return 2;
+        try {
+            $validator = Validator::make($request->all(), [
+
+                'idquan' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $tonkenUser = $this->checkTokenService->checkTokenUser($request);
+            if (count($tonkenUser) > 0) {
+                $quan = $this->quanService->findByIdVaTrangThai($request->get('idquan'), 1);
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy quán này",
+                    ]);
+                }
+                $comments= $this->commentService->getAllCommentsCuaMotQuan($quan->id,$tonkenUser[0]);
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'comments' => $comments
+                ]);
+                $review= $this->reviewService->findReviewByIduserVaIdquan($tonkenUser[0]->id, $quan->id);
+                if (!$review) {
+                    $this->reviewService->addReview($tonkenUser[0]->id, $quan->id,0);
+
+                }
+                date_default_timezone_set("Asia/Ho_Chi_Minh");
+                $time = date('Y-m-d h:i:s');
+
+                if ($request->get('start_time') < $time) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn phải đặt Trước thời gian hiện tại",
+                    ]);
+                }
+
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token bị sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }   
+    }
+    public function store(Request $request)
+    {
+        return 1;
+    }
+    public function show($id)
+    {
+        //
+    }
+    public function update(Request $request, $id)
+    {
+        //
+    }
+    public function destroy($id)
+    {
+        //
+    }
+}

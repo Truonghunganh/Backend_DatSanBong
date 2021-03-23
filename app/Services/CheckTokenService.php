@@ -23,72 +23,65 @@ class CheckTokenService
         try {
             $token=$request->header('tokenUser');
             if (!$token) {
-                return [];
+                return false;
             }
-            $tokenUser= User::where('role', '=', "user")->where('token', $token)->get();
-            if (count($tokenUser) > 0) {
-                return $tokenUser;
-            } else {
-                return [];
-            }
+            return User::where('role', '=', "user")->where('token', $token)->first();
+            
         } catch (\Exception $e) {
-            return [];
+            return false;
         }
     }
 
     public function checkTokenAdmin($request)
     {
         try {
-            if (!$request->header('tokenAdmin')) {
-                return [];
+            $token = $request->header('tokenAdmin');
+            if (!$token) {
+                return false;
             }
-             
-            $tokenUser = User::where('role', '=', "admin")->where('token', $request->header('tokenAdmin'))->get();
-            
-            if (count($tokenUser) > 0) {
-                return $tokenUser;
-            } else {
-                return [];
-            }
+            return User::where('role', '=', "admin")->where('token', $token)->first();
         } catch (\Exception $e) {
-            return [];
+            return false;
         }
+    
     }
 
 
     public function checkTokenInnkeeper($request)
     {
+
         try {
             $token = $request->header('tokenInnkeeper');
             if (!$token) {
-                return [];
+                return false;
             }
-            $user = User::where('role', '=', "innkeeper")->where('token', $token)->get();
-            if (count($user) > 0) {
-                return $user;
-            } else {
-                return [];
-            }
+            return User::where('role', '=', "innkeeper")->where('token', $token)->first();
         } catch (\Exception $e) {
-            return [];
+            return false;
         }
     }
 
     public function checkTokenInnkeeperAndIdquan($request)
     {
+
         try {
+            $token = $request->header('tokenInnkeeper');
+            if (!$token) {
+                return false;
+            }
             $token = $this->checkTokenInnkeeper($request);
-            if(count($token) > 0) {
-                $quan=Quan::where("id",$request->get('idquan'))->get();
-                if (count($quan)> 0) {
-                    if ($token[0]->phone==$quan[0]->phone) {
+            if ($token) {
+                $quan = Quan::where("id", $request->get('idquan'))->first();
+                if ($quan) {
+                    if ($token->phone == $quan->phone) {
                         return $token;
                     }
-                }                
+                }
             }
-            return [];
+            return false;
         } catch (\Exception $e) {
-            return [];
+            return false;
         }
-    }
+
+     }
 }

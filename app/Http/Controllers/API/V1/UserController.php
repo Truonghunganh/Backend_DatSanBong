@@ -122,11 +122,11 @@ class UserController extends Controller
                 
             }
             $checktoken = $this->checkTokenService->checkTokenUser($request);
-            if (count($checktoken) > 0) {
+            if ($checktoken) {
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'token' => $this->userService->editUserByToken($request,$checktoken[0]->id)
+                    'token' => $this->userService->editUserByToken($request,$checktoken->id)
                 ]);
             } else {
                 return response()->json([

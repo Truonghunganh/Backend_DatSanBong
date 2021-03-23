@@ -56,9 +56,9 @@ class AdminService
 
             ]
         );
-        $user = User::where("id", "=", $id)->get();
-        if (count($user) > 0) {
-            $token = JWTAuth::fromUser($user[0]);
+        $user = User::where("id", "=", $id)->first();
+        if ($user) {
+            $token = JWTAuth::fromUser($user);
             DB::update(
                 'update users set token = ? where phone = ?',
                 [$token, $request->get('phone')]

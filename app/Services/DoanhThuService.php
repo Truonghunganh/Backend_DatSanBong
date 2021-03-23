@@ -97,6 +97,23 @@ class DoanhThuService
         array_multisort($keys, SORT_ASC, $doanhthus);
         return $doanhthus;
     }
+    public function getDoanhThuListQuanCuaMotNamByAdmin($nam)
+    {
+        $quans = Quan::where('trangthai', true)->get();
+        $doanhthus = [];
+        for ($i = 0; $i < $quans->count(); $i++) {
+            $tien = 0;
+            $doanhthuold = DoanhThu::where("idquan", $quans[$i]->id)->whereYear("time", $nam)->get();
+            for ($j = 0; $j < $doanhthuold->count(); $j++) {
+                $tien += (int)$doanhthuold[$j]->doanhthu;
+            }
+            array_push($doanhthus, new DoanhThuQuan($quans[$i]->id, $quans[$i]->name, $quans[$i]->address, $quans[$i]->phone, $tien, $tien / 100));
+        }
+        $keys = array_column($doanhthus, 'idquan');
+        // SORT_ASC : laf tăng dần
+        array_multisort($keys, SORT_ASC, $doanhthus);
+        return $doanhthus;
+    }
     
 }
 

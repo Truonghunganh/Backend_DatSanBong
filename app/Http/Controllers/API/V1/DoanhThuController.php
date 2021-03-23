@@ -53,7 +53,7 @@ class DoanhThuController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($token) > 0) {
+            if ($token)  {
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
@@ -98,7 +98,7 @@ class DoanhThuController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
+            if ($token){
                 $quan = $this->quanService->findById($request->get('idquan'));
                 if (!$quan) {
                     return response()->json([
@@ -107,7 +107,7 @@ class DoanhThuController extends Controller
                         'message' => "idquan không tìm thấy"
                     ]);
                 }
-                if ($quan->phone!=$token[0]->phone) {
+                if ($quan->phone!=$token->phone) {
                     return response()->json([
                         'status' => false,
                          'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -158,7 +158,7 @@ class DoanhThuController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($token) > 0) {
+            if ($token) {
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
@@ -203,7 +203,7 @@ class DoanhThuController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
+            if ($token) {
                 $quan = $this->quanService->findById($request->get('idquan'));
                 if (!$quan) {
                     return response()->json([
@@ -212,7 +212,7 @@ class DoanhThuController extends Controller
                         'message' => "idquan không tìm thấy"
                     ]);
                 }
-                if ($quan->phone != $token[0]->phone) {
+                if ($quan->phone != $token->phone) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -263,7 +263,7 @@ class DoanhThuController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($token) > 0) {
+            if ($token) {
                 $quan = $this->quanService->findById($request->get('idquan'));
                 if (!$quan) {
                     return response()->json([
@@ -294,6 +294,43 @@ class DoanhThuController extends Controller
         }
     }
 
+    public function getDoanhThuListQuanCuaMotNamByAdmin(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'nam' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $token = $this->checkTokenService->checkTokenAdmin($request);
+            if ($token) {
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'doanhthus' => $this->doanhThuService->getDoanhThuListQuanCuaMotNamByAdmin($request->get('nam')),
+                    'laixuat' => '1%'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     public function getDoanhThuListQuanByAdmin(Request $request)
     {
         try {
@@ -310,7 +347,7 @@ class DoanhThuController extends Controller
             }
 
             $token = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($token) > 0) {
+            if ($token){
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
@@ -355,7 +392,7 @@ class DoanhThuController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenAdmin($request);
-            if (count($token) > 0) {
+            if ($token) {
                 $quan = $this->quanService->findById($doanhthu->idquan);
                 if (!$quan) {
                     return response()->json([
@@ -409,7 +446,7 @@ class DoanhThuController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
-            if (count($token) > 0) {
+            if ($token){
                 $quan = $this->quanService->findById($doanhthu->idquan);
                 if (!$quan) {
                     return response()->json([
@@ -418,7 +455,7 @@ class DoanhThuController extends Controller
                         'message' => "idquan không tìm thấy"
                     ]);
                 }
-                if ($quan->phone != $token[0]->phone) {
+                if ($quan->phone != $token->phone) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,

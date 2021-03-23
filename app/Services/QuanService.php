@@ -10,18 +10,15 @@ use Carbon\Carbon;
 
 class QuanService
 {
-    public function getQuanById($request)
-    {
-        if($request->get('id')){
-            return Quan::where('id', $request->get('id'))->get();
-        }
-        return [];
-    }
     public function deleteQuanByAdmin($id,$image){
         File::delete($image);
         $quan=Quan::find($id);      
         return $quan->delete();
     }
+    public function searchListQuans($search){
+        return Quan::where('name','like','%' . $search.'%')->orwhere('address','like','%' . $search.'%')->orwhere('phone', 'like', '%' . $search . '%')->get();
+    }
+
     public function getAllQuan(){
         return Quan::all();
     }

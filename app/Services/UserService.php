@@ -61,8 +61,8 @@ class UserService
         return DB::table('users')->where('role', '=', $role)->where('phone', $request->get('phone'))->get()[0]->token;
     }
     public function registerUser($request){
-        $userCheckPhone= User::where('phone','=', $request->get('phone'))->get();
-        if(count($userCheckPhone)>0){
+        $userCheckPhone= User::where('phone','=', $request->get('phone'))->first();
+        if($userCheckPhone){
             return true;
         }
         DB::insert(
@@ -77,9 +77,9 @@ class UserService
             Carbon::now()
 
         ]);
-        $user = User::where("phone", "=", $request->get('phone'))->get();
-        if (count($user) > 0) {
-            $token = JWTAuth::fromUser($user[0]);
+        $user = User::where("phone", "=", $request->get('phone'))->first();
+        if ($user) {
+            $token = JWTAuth::fromUser($user);
             DB::update(
                 'update users set token = ? where phone = ?',
                 [$token, $request->get('phone')]
@@ -90,7 +90,7 @@ class UserService
     }
     public  function getUser($request)
     {
-        return User::where("phone", "=", $request->get('phone'))->get()[0];
+        return User::where("phone", "=", $request->get('phone'))->first();
     }
 
     

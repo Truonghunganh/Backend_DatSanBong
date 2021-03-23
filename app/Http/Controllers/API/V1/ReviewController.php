@@ -38,7 +38,7 @@ class ReviewController extends Controller
                 ]);
             }
             $token = $this->checkTokenService->checkTokenUser($request);
-            if (count($token) > 0) {
+            if ($token)  {
                 $quan = $this->quanService->findByIdVaTrangThai($request->get('idquan'),1);
                 if (!$quan) {
                     return response()->json([
@@ -47,7 +47,7 @@ class ReviewController extends Controller
                         'message' =>"quán này không tồn tại"
                     ]);
                 }
-                $this->reviewService->reviewByUser($request,$token[0]->id);
+                $this->reviewService->reviewByUser($request,$token->id);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
