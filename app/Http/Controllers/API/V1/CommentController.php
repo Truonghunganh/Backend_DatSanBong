@@ -165,7 +165,7 @@ class CommentController extends Controller
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => "bạn không có quán này",
+                        'message' => "bạn không có quyền xóa bình luận này",
                     ]);
                 }
                 $comments = $this->commentService->updateComment($id, $request->get("binhluan"), $review->idquan, $tonkenUser);
@@ -190,9 +190,53 @@ class CommentController extends Controller
             ]);
         }
     }
-    public function destroy($id)
+    public function destroy($id,Request $request)
     {
-        //
+        try {
+            $user = $this->checkTokenService->checkTokenUser($request);
+            if ($user) {
+                $comment = $this->commentService->findById($id);
+                if (!$comment) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tim thấy",
+                    ]);
+                }
+                $review = $this->reviewService->findById($comment->idreview);
+                if (!$review) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tim thấy",
+                    ]);
+                }
+                if ($user->id != $review->iduser) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn không có quyền xóa bình luận này",
+                    ]);
+                }
+                return response()->json([
+                    'status'  => true,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'comments' => $this->commentService->deleteComment($id,$review->idquan,$user)
+                ]);    
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token bị sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }    
     }
 }
     

@@ -524,6 +524,8 @@ class QuanController extends Controller
                 'name' => 'required',
                 'address' => 'required',
                 'linkaddress' => 'required',
+                'vido' => 'required',
+                'kinhdo' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -603,11 +605,14 @@ class QuanController extends Controller
             }
             $token = $this->checkTokenService->checkTokenUser($request);
             if ($token) {
-                
+                $quans= $this->quanService->searchListQuans($request->get("search"));
+                if (count($quans)==0) {
+                    $quans= $this->quanService->searchListQuans1($request->get("search"));
+                }
                 return response()->json([
                     'status'  => true,
                     'code'    => Response::HTTP_OK,
-                    'quans' => $this->quanService->searchListQuans($request->get("search"))
+                    'quans' => $quans
                 ]);
             } else {
                 return response()->json([

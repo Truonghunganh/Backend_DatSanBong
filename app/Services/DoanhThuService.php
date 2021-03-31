@@ -8,7 +8,6 @@ use App\Models\Models\DoanhThu;
 use App\Models\Models\Quan;
 
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DoanhThuService
 {

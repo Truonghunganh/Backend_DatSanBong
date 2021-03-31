@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Models\Quan;
-use Carbon\Carbon;
 
 class QuanService
 {
@@ -17,6 +16,17 @@ class QuanService
     }
     public function searchListQuans($search){
         return Quan::where('name','like','%' . $search.'%')->orwhere('address','like','%' . $search.'%')->orwhere('phone', 'like', '%' . $search . '%')->get();
+    }
+    public function searchListQuans1($search)
+    {
+        $quans= Quan::query();
+        $mang = explode(" ", $search);
+        for ($i=0; $i <count($mang) ; $i++) { 
+            $quans=$quans->where('name', 'like', '%' . $mang[$i] . '%')
+                        ->orwhere('address', 'like', '%' . $mang[$i] . '%')
+                        ->orwhere('phone', 'like', '%' . $mang[$i] . '%');
+        }
+        return $quans->get();
     }
 
     public function getAllQuan(){
@@ -64,14 +74,16 @@ class QuanService
         return DB::update('update quans set trangthai = ? where id =? ', [$request->get('trangthai'),$request->get('idquan')]);
     }
     public function getListQuansByTokenInnkeeper($innkeeper,$trangthai){
-        return Quan::where('trangthai',$trangthai)->where('phone',$innkeeper[0]->phone)->get();
+        return Quan::where('trangthai',$trangthai)->where('phone',$innkeeper->phone)->get();
     }
     public function addQuanByInnkeeper($request, $token){
-        
-        $time = str_replace(' ', '_', Carbon::now());
+
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d H:i:s');
         $nameImage=$token[0]->phone."_". str_replace(':', '_', $time). "_". $request->file('image')->getClientOriginalName();
         $file=$request->file('image');
         $file->move('image\Quan',$nameImage);
+        
         return DB::insert(
             'insert into quans (name,image,address,phone,linkaddress,trangthai,vido,kinhdo,review,Create_time) values (?,?, ?,?, ?,?,? ,?,?,?)',
             [
@@ -84,7 +96,7 @@ class QuanService
                 $request->get('vido'),
                 $request->get('kinhdo'),
                 0,
-                Carbon::now()
+                $time
 
             ]
         );
@@ -94,21 +106,25 @@ class QuanService
         File::delete('image/Quan/0987654321_2021-02-08_02_18_30.jpg');
     }
     public function editQuanByTokenInnkeeper($request, $getQuanById){
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d H:i:s');
+         
         if ($request->hasFile('image')) {
             File::delete($getQuanById[0]->image); // xóa hình củ đi
-            $time = str_replace(' ', '_', Carbon::now());
             $nameImage = $getQuanById[0]->phone . "_" . str_replace(':', '_', $time). "_" . $request->file('image')->getClientOriginalName();
             $file = $request->file('image');
             $file->move('image\Quan', $nameImage);// thêm hình mới 
         
             return DB::update(
-                'update quans set name=?,image=?,address=?,linkaddress=?,Create_time=? where id = ?',
+                'update quans set name=?,image=?,address=?,linkaddress=?,Create_time=?,kinhdo=?,vido=? where id = ?',
                 [
                     $request->get('name'),
                     "image/Quan/" . $nameImage,
                     $request->get('address'),
                     $request->get('linkaddress'),
-                    Carbon::now(),
+                    $time,
+                    $request->get('kinhdo'),
+                    $request->get('vido'),
                     $request->get('id')
 
                 ]
@@ -117,12 +133,14 @@ class QuanService
         } else {
             
             return DB::update(
-                'update quans set name=?,address=?,linkaddress=?,Create_time=? where id = ?',
+                'update quans set name=?,address=?,linkaddress=?,Create_time=?,kinhdo=?,vido=? where id = ?',
                 [
                     $request->get('name'),
                     $request->get('address'),
                     $request->get('linkaddress'),
-                    Carbon::now(),
+                    $time,
+                    $request->get('kinhdo'),
+                    $request->get('vido'),
                     $request->get('id')
 
                 ]

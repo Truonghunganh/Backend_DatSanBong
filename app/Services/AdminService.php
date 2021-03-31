@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Models\User;
 
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class AdminService
 {
@@ -19,6 +18,9 @@ class AdminService
         if (count($userCheckPhone) > 0) {
             return true;
         }
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d H:i:s');
+         
         DB::insert(
             'insert into users (role,name,phone,gmail,address,password,Create_time) values (?,?, ?,?, ?,?,?)',
             [
@@ -28,7 +30,7 @@ class AdminService
                 $request->get('gmail'),
                 $request->get('address'),
                 bcrypt($request->get('password')),
-                Carbon::now()
+                $time
 
             ]
         );
@@ -44,6 +46,9 @@ class AdminService
     }
     public function editAdminByToken($request, $id)
     {
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d H:i:s');
+         
         DB::update(
             'update users set name=?,gmail=?,address=?,password=?,Create_time=? where id = ?',
             [
@@ -51,7 +56,7 @@ class AdminService
                 $request->get('gmail'),
                 $request->get('address'),
                 bcrypt($request->get('password')),
-                Carbon::now(),
+                $time,
                 $id
 
             ]

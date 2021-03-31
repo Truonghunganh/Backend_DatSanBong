@@ -5,7 +5,6 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Models\San;
-use Carbon\Carbon;
 
 class SanService
 {
@@ -29,6 +28,9 @@ class SanService
     }
    
     public function addSanByInnkeeper($request){
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d H:i:s');
+         
         return DB::insert(
             'insert into sans (idquan,name,numberpeople,trangthai,priceperhour,Create_time) values (?,?, ?,?, ?,?)',
             [
@@ -37,13 +39,26 @@ class SanService
                 $request->get('numberpeople'),
                 0,
                 $request->get('priceperhour'),
-                Carbon::now()
+                $time
 
             ]
         );
         
     }
-
+    public function thayDoiTrangthaiSanByInnkeeper($idsan,$trangthai){
+        try {
+            DB::beginTransaction();
+            DB::update('update sans set trangthai = ? where id = ?', [!$trangthai,$idsan]);
+            
+            DB::commit();
+            return true;
+            //code...
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return false;
+        
+        }        
+    }
     public function editSanByInnkeeper($request)
     {
         return DB::update(

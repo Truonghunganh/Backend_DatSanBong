@@ -18,7 +18,7 @@ Route::prefix('v1')->group(function () {
     /// user 
     Route::resource('quan', 'App\Http\Controllers\Api\V1\QuanController')->only(['index','show', 'destroy']);
     Route::resource('san', 'App\Http\Controllers\Api\V1\SanController')->only(['show']);
-    //Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['store', 'destroy']);
+    Route::resource('datsans', 'App\Http\Controllers\Api\V1\DatSanController')->only(['store', 'destroy']);
     Route::post('getQuanByIdAndTokenUser', 'App\Http\Controllers\Api\V1\QuanController@getQuanByIdAndTokenUser');
     
     Route::get('getListDatSanByUserToken', 'App\Http\Controllers\Api\V1\DatSanController@getListDatSanByUserToken');
@@ -42,13 +42,15 @@ Route::prefix('v1')->group(function () {
     Route::post('registerInnkeeper', 'App\Http\Controllers\Api\V1\ChuQuanController@registerInnkeeper');
     Route::put('editInnkeeperByToken', 'App\Http\Controllers\Api\V1\ChuQuanController@editInnkeeperByToken');
 
-    Route::post('getQuanByIdAndTokenInnkeeper', 'App\Http\Controllers\Api\V1\QuanController@getQuanByIdAndTokenInnkeeper');
+    Route::get('getQuanByIdAndTokenInnkeeper', 'App\Http\Controllers\Api\V1\QuanController@getQuanByIdAndTokenInnkeeper');
     Route::get('getListQuansByTokenInnkeeper', 'App\Http\Controllers\Api\V1\QuanController@getListQuansByTokenInnkeeper');
     Route::get('getListQuansByTokenInnkeeperChuaPheDuyet', 'App\Http\Controllers\Api\V1\QuanController@getListQuansByTokenInnkeeperChuaPheDuyet');
 
     Route::post('addQuanByInnkeeper', 'App\Http\Controllers\Api\V1\QuanController@addQuanByInnkeeper');
     Route::post('editQuanByTokenInnkeeper', 'App\Http\Controllers\Api\V1\QuanController@editQuanByTokenInnkeeper');
     Route::post('addSanByInnkeeper', 'App\Http\Controllers\Api\V1\SanController@addSanByInnkeeper');
+    Route::get('getSanByInnkeeperVaId', 'App\Http\Controllers\Api\V1\SanController@getSanByInnkeeperVaId');
+
 
     Route::post('checkTokenInnkeeperAndIdquan', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeperAndIdquan');
     Route::delete('deleteQuanChuaduyetByInnkeeper', 'App\Http\Controllers\Api\V1\QuanController@deleteQuanChuaduyetByInnkeeper');
@@ -63,8 +65,10 @@ Route::prefix('v1')->group(function () {
     Route::post('getTongDoanhThuTheoNamByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getTongDoanhThuTheoNamByInnkeeper');
     Route::post('getDatSansvaSansByInnkeeperAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByInnkeeperAndIdquanAndNgay');
     Route::post('getChiTietDanhthuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getChiTietDanhthuByInnkeeper');
+    Route::post('thayDoiTrangthaiSanByInnkeeper', 'App\Http\Controllers\Api\V1\SanController@thayDoiTrangthaiSanByInnkeeper');
+    
     //Route::get('get', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');
-
+    
     Route::post('thu', 'App\Http\Controllers\Api\V1\CheckTokenController@thu');
     
     // admin : quản lý các quán getDatSansvaSansByInnkeeperAndIdquanAndNgay,Route::post('getDoanhThuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuByInnkeeper');

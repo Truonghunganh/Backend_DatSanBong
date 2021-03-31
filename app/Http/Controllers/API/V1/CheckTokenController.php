@@ -27,8 +27,13 @@ class CheckTokenController extends Controller
     }
     public function thu(Request $request)
     {
-        return mt_rand(2, 4);
+         //$config = require('config');
 
+        return  require("key");
+        //mt_rand(2, 4);
+        // Config::set('site_settings', $site_settings);
+
+        // Config::get('site_settings');
         $a=7;
         return $a/4;
         return mt_rand(0, 2) ;
@@ -153,7 +158,7 @@ class CheckTokenController extends Controller
             $checkToken = $this->checkTokenService->checkTokenInnkeeper($request);
             if ($checkToken) {
                 $quan = $this->quanService->findById($request->get('idquan'));
-                if($quan->phone!=$checkToken[0]->phone) {
+                if($quan->phone!=$checkToken->phone) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,

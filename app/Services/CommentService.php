@@ -1,14 +1,9 @@
 <?php
 
 namespace App\Services;
-
-use Tymon\JWTAuth\Facades\JWTAuth;
-//use JWTAuth;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Models\Comment;
 
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 use App\Services\UserService;
 use App\Services\ReviewService;
@@ -41,14 +36,22 @@ class CommentService
             $quyenUpdate=1;
             $usernew=$user;
         }
-        $keys = array_column($commentsnew, 'Create_time');
-        array_multisort($keys, SORT_DESC , $commentsnew);
+        for ($i=0; $i < count($commentsnew)-1; $i++) { 
+            for ($j=$i+1; $j <count($commentsnew); $j++) { 
+                if ($commentsnew[$i]->Create_time < $commentsnew[$j]->Create_time) {
+                    $a= $commentsnew[$i];
+                    $commentsnew[$i]= $commentsnew[$j];
+                    $commentsnew[$j]=$a;
+                }
+            }
+        }
         return $commentsnew;
         
     }
+
     public function addComment($idquan, $user,$binhluan){
         date_default_timezone_set("Asia/Ho_Chi_Minh");
-        $time = date('Y-m-d h:i:s');
+        $time = date('Y-m-d H:i:s');
         $iduser=$user->id;
         
         $review= $this->reviewService->findReviewByIduserVaIdquan($iduser, $idquan);
@@ -67,6 +70,10 @@ class CommentService
         DB::update('update comments set binhluan = ? where id = ?', [$binhluan,$id]);
         return $this->getAllCommentsCuaMotQuan($idquan, $user);
         
+    }
+    public function deleteComment($id,$idquan,$user){
+        Comment::find($id)->delete();
+        return $this->getAllCommentsCuaMotQuan($idquan, $user);
     }
 }
 

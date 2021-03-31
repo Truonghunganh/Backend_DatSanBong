@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Models\User;
 
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class ChuQuanService
 {
@@ -17,7 +16,9 @@ class ChuQuanService
         if (count($userCheckPhone) > 0) {
             return true;
         }
-        DB::insert(
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d H:i:s');
+           DB::insert(
             'insert into users (role,name,phone,gmail,address,password,Create_time) values (?,?, ?,?, ?,?,?)',
             [
                 "innkeeper",
@@ -26,7 +27,7 @@ class ChuQuanService
                 $request->get('gmail'),
                 $request->get('address'),
                 bcrypt($request->get('password')),
-                Carbon::now()
+                $time
 
             ]
         );
@@ -43,6 +44,9 @@ class ChuQuanService
 
     public function editInnkeeperByToken($request, $id)
     {
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d H:i:s');
+         
         DB::update(
             'update users set name=?,gmail=?,address=?,password=?,Create_time=? where id = ?',
             [
@@ -50,7 +54,7 @@ class ChuQuanService
                 $request->get('gmail'),
                 $request->get('address'),
                 bcrypt($request->get('password')),
-                Carbon::now(),
+                $time,
                 $id
 
             ]

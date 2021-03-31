@@ -25,6 +25,11 @@ class CheckTokenService
             if (!$token) {
                 return false;
             }
+            // $user=User::find($request->header('id'));
+            // if ($user->token==$token) {
+            //     return $user;
+            // }
+            // return false;
             return User::where('role', '=', "user")->where('token', $token)->first();
             
         } catch (\Exception $e) {

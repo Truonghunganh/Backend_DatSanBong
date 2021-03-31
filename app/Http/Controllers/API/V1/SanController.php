@@ -37,7 +37,7 @@ class SanController extends Controller
                 'status' => true,
                 'code' => Response::HTTP_OK,
                 'san' => $sans,
-                'datsans'=> $this->datSanService->getDatSansByIdquanVaNgay($sans,$request->get('start_time')),
+                'datsans'=> $this->datSanService->getTinhTrangDatSansByIdquanVaNgay($sans,$request->get('start_time')),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -48,7 +48,129 @@ class SanController extends Controller
         }
       
     }
-    
+    public function thayDoiTrangthaiSanByInnkeeper(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'idsan' => 'required',
+                'trangthai' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $token = $this->checkTokenService->checkTokenInnkeeper($request);
+            if ($token) {
+                $san = $this->sanService->findById($request->get("idsan"));
+                if (!$san) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy sân có id =" + $request->get("idsan")
+                    ]);
+                }
+                $quan = $this->quanService->findByIdVaTrangThai($san->idquan, 1);
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy quán này"
+                    ]);
+                }
+                if ($token->phone != $quan->phone) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn không có quyền truy cập đến quán này"
+                    ]);
+                }
+                $thayDoiTrangthaiSanByInnkeeper = $this->sanService->thayDoiTrangthaiSanByInnkeeper($request->get('idsan'),$request->get('trangthai'));
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'san' => $san,
+                    'quan' => $quan
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token Innkeeper không đúng"
+                ]);
+            }
+        } catch (\Exception $e1) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e1->getMessage()
+            ]);
+        }
+    }
+    public function getSanByInnkeeperVaId(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'idsan' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }    
+            
+            $token = $this->checkTokenService->checkTokenInnkeeper($request);
+            if ($token) {
+                $san= $this->sanService->findById($request->get("idsan"));
+                if (!$san) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy sân có id ="+$request->get("idsan")
+                    ]);
+                }
+                $quan= $this->quanService->findByIdVaTrangThai($san->idquan, 1);
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy quán này"
+                    ]);
+                }
+                if ($token->phone!=$quan->phone) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn không có quyền truy cập đến quán này"
+                    ]);
+                }
+
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'san' => $san,
+                    'quan' =>$quan
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token Innkeeper không đúng"
+                ]);
+            }
+        } catch (\Exception $e1) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e1->getMessage()
+            ]);
+        }
+    }
     public function show(Request $request, $id)
     {
         try {
@@ -78,31 +200,6 @@ class SanController extends Controller
                 }
             }
 
-            if ($request->header('tokenInnkeeper')) {
-                try {
-                    $token = $this->checkTokenService->checkTokenInnkeeper($request);
-                    if ($token)  {
-                        return response()->json([
-                            'status'  => true,
-                            'code'    => Response::HTTP_OK,
-                            'san' => $this->sanService->findById($id),
-                            'person' => 'innkeeper'
-                        ]);
-                    } else {
-                        return response()->json([
-                            'status' => false,
-                            'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                            'message' => "token Innkeeper không đúng"
-                        ]);
-                    }
-                } catch (\Exception $e1) {
-                    return response()->json([
-                        'status' => false,
-                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => $e1->getMessage()
-                    ]);
-                }
-            }
 
             if ($request->header('tokenAdmin')) {
                 try {

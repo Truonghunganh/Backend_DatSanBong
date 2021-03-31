@@ -35,7 +35,35 @@ class DatSanController extends Controller
         $this->doanhThuService = $doanhThuService;
         $this->reviewService = $reviewService;
     }
-
+    protected  $checkddatsan=true;
+    public function addDatSan(Request $request){
+        $iduser=$request->get('iduser');
+        if ($this->checkddatsan) {
+            $this->checkddatsan = false;
+            $datsan = $this->datSanService->addDatSan($request, $iduser);
+            if ($datsan) {
+                $this->checkddatsan = true;
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'datsan' => $datsan
+                ]);
+            } else {
+                $this->checkddatsan = true;
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "bạn đã đặt sân thất bại"
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => "bạn đã đặt sân thất bại"
+            ]);
+        }
+    }
     // show là add data lên (để thêm vào)
     public function store(Request $request)
     {
@@ -58,7 +86,7 @@ class DatSanController extends Controller
             $tonkenUser=$this->checkTokenService->checkTokenUser($request);
             if($tonkenUser){
                 date_default_timezone_set("Asia/Ho_Chi_Minh");
-                $time = date('Y-m-d h:i:s');
+                $time = date('Y-m-d H:i:s');
 
                 if ($request->get('start_time') < $time) {
                     return response()->json([
@@ -68,23 +96,32 @@ class DatSanController extends Controller
                     ]);
 
                 }
-        
-                $datsan = $this->datSanService->addDatSan($request,$tonkenUser->id);
-                if ($datsan) {
-                    return response()->json([
-                        'status'  => true,
-                        'code'    => Response::HTTP_OK,
-                        'datsan' => $datsan
-                    ]);
-                }else {
+                
+                if ($this->checkddatsan) {
+                    $this->checkddatsan = false;
+                    $datsan = $this->datSanService->addDatSan($request, $tonkenUser->id);
+                    if ($datsan) {
+                        $this->checkddatsan = true;
+                        return response()->json([
+                            'status'  => true,
+                            'code'    => Response::HTTP_OK,
+                            'datsan' => $datsan
+                        ]);
+                    } else {
+                        $this->checkddatsan = true;
+                        return response()->json([
+                            'status' => false,
+                            'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                            'message' => "bạn đã đặt sân thất bại"
+                        ]);
+                    }
+                } else {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
                         'message' => "bạn đã đặt sân thất bại"
                     ]);
-
-                    
-                }    
+                }
             }
             else {
                 return response()->json([
@@ -95,6 +132,7 @@ class DatSanController extends Controller
 
             }
         } catch (\Exception $e) {
+            $this->checkddatsan=true;
             return response()->json([
                 'status' => false,
                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -106,8 +144,8 @@ class DatSanController extends Controller
         try {
             $userbyToken=$this->checkTokenService->checkTokenUser($request);
             if ($userbyToken) {
-                $id=$userbyToken->id;
-                $datsans= $this->datSanService->getListDatSanByIduser($id);
+                $iduser=$userbyToken->id;
+                $datsans= $this->datSanService->getListDatSanByIduser($iduser);
                 if (count($datsans)==0) {
                     return response()->json([
                         'status' => false,
@@ -424,7 +462,7 @@ class DatSanController extends Controller
                     ]); 
                 }
                 $sans = $this->sanService->getSansByIdquan($request->get('idquan'));
-                $datsans =  $this->datSanService->getDatSansByIdquanVaNgay($sans,$request->get('start_time'));            
+                $datsans =  $this->datSanService->getTinhTrangDatSansByIdquanVaNgay($sans,$request->get('start_time'));            
                 $reviewcuauser=0;
                 $review= $this->reviewService->findReviewByIduserVaIdquan($user->id, $request->get("idquan"));
                 if($review){
@@ -567,7 +605,7 @@ class DatSanController extends Controller
                 'timeOld' => 'required',
                 'timeNew' => 'required',
             ]);
-
+            
             if ($validator->fails()) {
                 return response()->json([
                     'status' => false,
@@ -575,7 +613,15 @@ class DatSanController extends Controller
                     'message' => $validator->errors()
                 ]);
             }
-
+            date_default_timezone_set("Asia/Ho_Chi_Minh");
+            $time = date('Y-m-d H:i:s');
+            if ($time>$request->get('timeOld')||$time>$request->get('timeNew')) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "thời gian hiện tại phải bé hơn thời gian thay đổi đặt sân"
+                ]);
+            }       
             $token = $this->checkTokenService->checkTokenInnkeeper($request);
             if ($token) {
                 $sanOld = $this->sanService->findById($request->get('idsanOld'));
@@ -595,14 +641,16 @@ class DatSanController extends Controller
                         'message' => "không tìm thấy sân có id = " . $request->get('idsanNew')
                     ]);
                 }
-                if (count($this->datSanService->getdatsan($request->get('idsanOld'), $request->get('timeOld')))==0) {
+                $datsanOld= $this->datSanService->getdatsan($request->get('idsanOld'), $request->get('timeOld'));
+                if (!$datsanOld) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
                         'message' => "đặt sân củ chưa được đặt nên bạn không thể thay đổi "
                     ]);
                 }
-                if (count($this->datSanService->getdatsan($request->get('idsanNew'), $request->get('timeNew'))) >0) {
+                $datsanNew= $this->datSanService->getdatsan($request->get('idsanNew'), $request->get('timeNew'));
+                if ($datsanNew) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -627,13 +675,12 @@ class DatSanController extends Controller
                 }
 
                 if ($token->phone == $quanOld->phone&&$quanNew->phone == $quanOld->phone) {
-                    $san = $this->datSanService->thayDoiDatSanByInnkeeper($request,$sanOld,$sanNew);
-                    if ($san) {
+                    $datsan = $this->datSanService->thayDoiDatSanByInnkeeper($request->get('timeOld'),$request->get('timeNew'),$sanOld,$sanNew,$datsanOld);
+                    if ($datsan) {
                         return response()->json([
                             'status' => true,
                             'code' => Response::HTTP_OK,
-                            'message' => "thay đổi đặt sân thành công",
-                            'san' => $san
+                            'message' => "thay đổi đặt sân thành công"
                         ]);
                     } else {
                         return response()->json([

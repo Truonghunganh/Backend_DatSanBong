@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Carbon\Carbon;
 use App\Services\CheckTokenService;
 use App\Models\Models\DanhThu;
 use App\Services\QuanService;
@@ -39,42 +38,68 @@ class DatSanService
         return DatSan::where('id',$id)->where('xacnhan',$xacnhan)->first();
     }
     public function xacNhanDatsan($datsan,$xacnhan,$start_time,$price,$san){
-        $xacnhan=DB::update('update datsans set xacnhan = ? where id = ?', [$xacnhan, $datsan->id]);
-        $nam = substr($start_time, 0, 4);
-        $thang = substr($start_time, 5, 2);
-        $ngay = substr($start_time, 8, 2);
-             
-        if ($xacnhan) {
-           $doanhthu= DB::table('doanhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $san->idquan)->get();
-            if (count($doanhthu)> 0) {
-                $priceNew = (int)$doanhthu[0]->doanhthu + (int)$price;
-                DB::update('update doanhthus set doanhthu=? where id = ?', [$priceNew, $doanhthu[0]->id]);
-            } else {
-                DB::insert('insert into doanhthus (idquan, doanhthu,time) values (?, ?,?)', [$san->idquan, $price, substr($start_time, 0, 10) . " 00:00:00"]);
-            }
+        DB::beginTransaction();
+        try {
+            $xacnhan = DB::update('update datsans set xacnhan = ? where id = ?', [$xacnhan, $datsan->id]);
+            $nam = substr($start_time, 0, 4);
+            $thang = substr($start_time, 5, 2);
+            $ngay = substr($start_time, 8, 2);
 
-            $chonquan = DB::table('chonquans')->where("iduser", $datsan->iduser)->where("idquan", $san->idquan)->first();
-            if ($chonquan) {
-                DB::update('update chonquans set solan = ? where id = ?', [$chonquan->solan + 1, $chonquan->id]);
+            if ($xacnhan) {
+                $doanhthu = DB::table('doanhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $san->idquan)->get();
+                if (count($doanhthu) > 0) {
+                    $priceNew = (int)$doanhthu[0]->doanhthu + (int)$price;
+                    DB::update('update doanhthus set doanhthu=? where id = ?', [$priceNew, $doanhthu[0]->id]);
+                } else {
+                    DB::insert('insert into doanhthus (idquan, doanhthu,time) values (?, ?,?)', [$san->idquan, $price, substr($start_time, 0, 10) . " 00:00:00"]);
+                }
+
+                $chonquan = DB::table('chonquans')->where("iduser", $datsan->iduser)->where("idquan", $san->idquan)->first();
+                if ($chonquan) {
+                    DB::update('update chonquans set solan = ? where id = ?', [$chonquan->solan + 1, $chonquan->id]);
+                } else {
+                    DB::insert('insert into chonquans (iduser, idquan,solan) values (?, ?,?)', [$datsan->iduser, $san->idquan, 1]);
+                }
+
+                return true;
             } else {
-                DB::insert('insert into chonquans (iduser, idquan,solan) values (?, ?,?)', [$datsan->iduser, $san->idquan, 1]);
+                return false;
             }
-                                
-            return true;        
-                    
-        } else {
-            return false;
+        
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw new \Exception($e->getMessage());
         }
                 
     }
     public function getListDatSanByIduser($iduser)
     {
-        $listdatsanByiduser= DB::table('datsans')->where('iduser', $iduser)->where('start_time','>=', Carbon::now())->get();
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d H:i:s');
+        
+        $listdatsanByiduser= DB::table('datsans')->where('iduser', $iduser)->where('start_time','>=', $time)->get();
+        $sans= DB::table('sans')->get();
+        $quans=DB::table('quans')->get();
+        $san=$sans[0];
+        $quan=$quans[0];
         $mangdatsantruocngayhientai=[];
         for ($i=0; $i < count($listdatsanByiduser); $i++) { 
-            $san= DB::table('sans')->where('id','=', $listdatsanByiduser[$i]->idsan)->get();
-            $quan= DB::table('quans')->where('id','=',$san[0]->idquan)->get();
-            $datsan=new datsanS($listdatsanByiduser[$i]->id,$quan[0]->name,$quan[0]->address,$quan[0]->phone,$san[0]->name,$listdatsanByiduser[$i]->start_time,$san[0]->numberpeople,$listdatsanByiduser[$i]->price,$listdatsanByiduser[$i]->xacnhan);
+            for ($j=0; $j <count($sans) ; $j++) { 
+                if ($listdatsanByiduser[$i]->idsan==$sans[$j]->id) {
+                    $san=$sans[$j];
+                    for ($k = 0; $k < count($quans); $k++) {
+                        if ($quans[$k]->id == $sans[$j]->idquan) {
+                            $quan=$quans[$k];
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            $datsan=new datsanS($listdatsanByiduser[$i]->id,$quan->name,$quan->address,$quan->phone,$san->name,$listdatsanByiduser[$i]->start_time,$san->numberpeople,$listdatsanByiduser[$i]->price,$listdatsanByiduser[$i]->xacnhan,$san->trangthai);
             array_push($mangdatsantruocngayhientai,$datsan);
         }
         $keys = array_column($mangdatsantruocngayhientai, 'time');
@@ -152,8 +177,68 @@ class DatSanService
         }
         return $array;
     }
+    public function mangTinhTrangdatsancuamotsan($datdsan)
+    {
+        $array = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+        for ($i = 0; $i < count($datdsan); $i++) {
+            switch (substr($datdsan[$i]->start_time, 11, 2)) {
+                case "05":
+                    $array[0] =true;
+                    break;
+                case "06":
+                    $array[1] = true;
+                    break;
+                case "07":
+                    $array[2] = true;
+                    break;
+                case "08":
+                    $array[3] = true;
+                    break;
+                case "09":
+                    $array[4] = true;
+                    break;
+                case "10":
+                    $array[5] = true;
+                    break;
+                case "11":
+                    $array[6] = true;
+                    break;
+                case "12":
+                    $array[7] = true;
+                    break;
+                case "13":
+                    $array[8] = true;
+                    break;
+                case "14":
+                    $array[9] = true;
+                    break;
+                case "15":
+                    $array[10] = true;
+                    break;
+                case "16":
+                    $array[11] = true;
+                    break;
+                case "17":
+                    $array[12] = true;
+                    break;
+                case "18":
+                    $array[13] = true;
+                    break;
+                case "19":
+                    $array[14] = true;
+                    break;
+                case "20":
+                    $array[15] = true;
+                    break;
 
-    public function getDatSansByIdquanVaNgay($sans,$start_time)
+                default:
+                    break;
+            }
+        }
+        return $array;
+    }
+
+    public function getTinhTrangDatSansByIdquanVaNgay($sans,$start_time)
     {
         $datsans = array();
         $nam = substr($start_time, 0, 4);
@@ -161,24 +246,24 @@ class DatSanService
         $ngay = substr($start_time, 8, 2);
         foreach ($sans as $san) {
             $datsan = DB::table('datsans')->where('idsan', $san->id)->whereDay('start_time', $ngay)->whereMonth('start_time', $thang)->whereYear('start_time', $nam)->get();
-            $datsannews=array();
-            foreach ($datsan as $ds) {
-                array_push($datsannews, new DatSan1($ds->id, $ds->idsan, $ds->iduser, $ds->start_time, $ds->price, $ds->Create_time));    
-            }
-            $keys= array_column($datsannews,'start_time');
-            array_multisort($keys,SORT_ASC,$datsannews);
-            array_push($datsans, $datsannews);
+            $TRdatsan=$this->mangTinhTrangdatsancuamotsan($datsan);
+            array_push($datsans, $TRdatsan);
         }
         return $datsans;
     }
     public function  addDatSan($request,$iduser){
+        DB::beginTransaction();
         try {
-            $id=null;
-            // $week = strtotime(date("Y-m-d", strtotime(date('Y-m-d'))) . " -1 week");
-            // $week = strftime("%Y-%m-%d", $week);
-            return Datsan::updateOrCreate(
+            $datsan=DatSan::where('idsan',$request->get('idsan'))->where('start_time',$request->get('start_time'))->first();
+            if ($datsan) {
+                return  false;
+            }
+            date_default_timezone_set("Asia/Ho_Chi_Minh");
+            $time = date('Y-m-d H:i:s');
+        
+           return Datsan::updateOrCreate(
                 [
-                    'id' => $id
+                    'id' => null
                 ],
                 [
                     'idsan' => $request->get('idsan'),
@@ -186,11 +271,17 @@ class DatSanService
                     'start_time' => $request->get('start_time'),
                     'price' => $request->get('price'),
                     'xacnhan' => false,
-                    'Create_time' => Carbon::now()
+                    'Create_time' => $time
                 ]
-
             );
-
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return false;
+        }
+        return false;
+    }
+    
                 // $mangdatsantruoc1tuan = DB::table('datsans')->where('start_time', '<', substr($week, 0, 10))->get();
                 // if (count($mangdatsantruoc1tuan) != 0) {
                 //     $id = $mangdatsantruoc1tuan[0]->id;
@@ -213,51 +304,43 @@ class DatSanService
                 // }
             
             
-        } catch (\Exception $e) {
-            return false;
-        }
-        return false;            
-    }
-    public function thayDoiDatSanByInnkeeper($request, $sanOld, $sanNew){
+    public function thayDoiDatSanByInnkeeper($timeOld, $timeNew, $sanOld, $sanNew,$datsanOld){
         try {
-            $datsan=DatSan::where("idsan",$request->get('idsanOld'))-> where("start_time", $request->get('timeOld'))->get();
-            if (count($datsan)==0) {
-                return false;
+            DB::beginTransaction();
+            DB::update('update datsans set idsan = ?,start_time=?,price=? where id = ?', [$sanNew->id, $timeNew,$sanNew->priceperhour, $datsanOld->id]);
+            
+            $nam = substr($timeOld, 0, 4);
+            $thang = substr($timeOld, 5, 2);
+            $ngay = substr($timeOld, 8, 2);
+            $doanhthuOld = DB::table('doanhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $sanOld->idquan)->first();
+            if (!$doanhthuOld) {
+                DB::insert('insert into doanhthus (idquan, doanhthu ,time) values (?, ?,?)', [$sanOld->idquan, 0,$nam."-".$thang."-".$ngay."00:00:00"]);
+                $doanhthuOld = DB::table('doanhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $sanOld->idquan)->first();
             }
-            $nam = substr($request->get('timeOld'), 0, 4);
-            $thang = substr($request->get('timeOld'), 5, 2);
-            $ngay = substr($request->get('timeOld'), 8, 2);
-            $danhthu = DB::table('danhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $sanOld->idquan)->get();
+            $priceOld=$doanhthuOld->doanhthu-$sanOld->priceperhour;
+            DB::update('update doanhthus set doanhthu = ? where id = ?', [$priceOld, $doanhthuOld->id]);
 
-            if (count($danhthu) > 0) {
-                $priceNew = (int)$danhthu[0]->danhthu - (int)$sanOld->price+(int)$sanNew->price;
-                if ($priceNew == (int)$danhthu[0]->danhthu) {
-                    if (DB::update('update datsans set idsan = ?,start_time=? where id = ?', [$request->get('idsanNew'), $request->get('timeNew'), $datsan[0]->id])) {
-                        return true;
-                    } 
-                    
-                }
-                if(DB::update('update danhthus set danhthu=? where id = ?', [$priceNew, $danhthu[0]->id])){
-                    if (DB::update('update datsans set idsan = ?,start_time=? where id = ?', [$request->get('idsanNew'), $request->get('timeNew'), $datsan[0]->id])) {
-                        return true;
-                    }else {
-                        DB::update('update danhthus set danhthu=? where id = ?', [$danhthu[0]->danhthu, $danhthu[0]->id]);
-                        return false; 
-                    }
-                }
-                return DB::update('update danhthus set danhthu=? where id = ?', [$danhthu[0]->danhthu, $danhthu[0]->id]);
-            }// else {
-            //     DB::insert('insert into danhthus (idquan, danhthu,time) values (?, ?,?)', [$sanNew->idquan, $sanNew->price, substr($request->get('timeNew'), 0, 10) . " 00:00:00"]);
-            // } 
-                    
+            $nam = substr($timeNew, 0, 4);
+            $thang = substr($timeNew, 5, 2);
+            $ngay = substr($timeNew, 8, 2);
+            $doanhthuNew = DB::table('doanhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $sanNew->idquan)->first();
+            if (!$doanhthuOld) {
+                DB::insert('insert into doanhthus (idquan, doanhthu ,time) values (?, ?,?)', [$sanNew->idquan, 0, $nam . "-" . $thang . "-" . $ngay . "00:00:00"]);
+                $doanhthuNew = DB::table('doanhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $sanNew->idquan)->first();
+            }
+            $priceNew = $doanhthuNew->doanhthu + $sanNew->priceperhour;
+            DB::update('update doanhthus set doanhthu = ? where id = ?', [$priceNew, $doanhthuNew->id]);
+            DB::commit();
+            return true;
             
         } catch (\Exception $e) {
+            DB::rollBack();
             return false;
         }
         return false;
     }
     public function getdatsan($idsan,$start_time){
-        return DatSan::where('idsan',$idsan)->where('start_time',$start_time)->get();
+        return DatSan::where('idsan',$idsan)->where('start_time',$start_time)->first();
     }
 
     public function getAllDatSanByIdquan($idquan,$xacnhan,$time,$dau){
@@ -291,10 +374,10 @@ class DatSanService
         
         foreach ($quans as $quan) {
             $sans= $this->sanService->getSansByIdquan($quan->id);
-            $datsancuaquan=new datsancuaquan($quan->id,$quan->name,$quan->address,$quan->phone,$sans,$this->getDatSansByIdquanVaNgay($quan->id, $start_time));
+            $datsancuaquan=new datsancuaquan($quan->id,$quan->name,$quan->address,$quan->phone,$sans,$this->getTinhTrangDatSansByIdquanVaNgay($sans, $start_time));
             array_push($datsans,$datsancuaquan);           
         }
-        return $datsans;
+        return $datsans; 
     }
 }
 class Datsan1
@@ -367,7 +450,8 @@ class datsanS
     public $numberpeople;
     public $price;
     public $xacnhan;
-    public function __construct($id, $nameQuan, $addressQuan, $phoneQuan,$nameSan,$time, $numberpeople,$price,$xacnhan){
+    public $trangthaisan;
+    public function __construct($id, $nameQuan, $addressQuan, $phoneQuan,$nameSan,$time, $numberpeople,$price,$xacnhan,$trangthaisan){
         $this->id = $id;
         $this->nameQuan = $nameQuan;
         $this->addressQuan = $addressQuan;
@@ -377,6 +461,7 @@ class datsanS
         $this->numberpeople = $numberpeople;
         $this->price = $price;
         $this->xacnhan = $xacnhan;
+        $this->trangthaisan= $trangthaisan;
     }   
 }
 class Datsan2
