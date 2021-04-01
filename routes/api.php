@@ -66,8 +66,9 @@ Route::prefix('v1')->group(function () {
     Route::post('getDatSansvaSansByInnkeeperAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByInnkeeperAndIdquanAndNgay');
     Route::post('getChiTietDanhthuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getChiTietDanhthuByInnkeeper');
     Route::post('thayDoiTrangthaiSanByInnkeeper', 'App\Http\Controllers\Api\V1\SanController@thayDoiTrangthaiSanByInnkeeper');
-    
-    //Route::get('get', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');
+    Route::get('getAllCommentCuaMotQuanByInnkeeper', 'App\Http\Controllers\Api\V1\CommentController@getAllCommentCuaMotQuanByInnkeeper');
+
+    //Route::get('get', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');getAllCommentCuaMotQuanByInnkeeper
     
     Route::post('thu', 'App\Http\Controllers\Api\V1\CheckTokenController@thu');
     

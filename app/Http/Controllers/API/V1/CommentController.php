@@ -28,12 +28,63 @@ class CommentController extends Controller
          $this->commentService = $commentService;
          $this->reviewService = $reviewService;
     }
+    public function getAllCommentCuaMotQuanByInnkeeper(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'idquan' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $tonken = $this->checkTokenService->checkTokenInnkeeper($request);
+            if ($tonken) {
+                $quan = $this->quanService->findByIdVaTrangThai($request->get('idquan'), 1);
+                if (!$quan) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "không tìm thấy quán này",
+                    ]);
+                }
+                if ($tonken->phone!= $quan->phone) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "bạn không có quyền truy cập đến quán này",
+                    ]);
+                }
+                $comments = $this->commentService->getAllCommentCuaMotQuanByInnkeeper($quan->id);
+                return response()->json([
+                    'status'  => true,
+                    'code'    => Response::HTTP_OK,
+                    'comments' => $comments
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token bị sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     public function index(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-
-                'idquan' => 'required',
+               'idquan' => 'required',
             ]);
 
             if ($validator->fails()) {

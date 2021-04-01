@@ -17,7 +17,31 @@ class CommentService
         $this->userService = $userService;
     }
 
-
+    public function getAllCommentCuaMotQuanByInnkeeper($idquan){
+        $commentsnew = [];
+        $reviews = $this->reviewService->getAllReviewByIdquan($idquan);
+        for ($i = 0; $i < count($reviews); $i++) {
+            $usernew = $this->userService->getUserById($reviews[$i]->iduser);
+                
+            $comments = Comment::where('idreview', $reviews[$i]->id)->get();
+            for ($j = 0; $j < count($comments); $j++) {
+                $comment = new Comment2($comments[$j]->id, $usernew->name, $reviews[$i]->review, $comments[$j]->Create_time, $comments[$j]->binhluan);
+                array_push($commentsnew, $comment);
+            }
+        }
+        for ($i = 0; $i < count($commentsnew) - 1; $i++) {
+            for ($j = $i + 1; $j < count($commentsnew); $j++) {
+                if ($commentsnew[$i]->Create_time < $commentsnew[$j]->Create_time) {
+                    $a = $commentsnew[$i];
+                    $commentsnew[$i] = $commentsnew[$j];
+                    $commentsnew[$j] = $a;
+                }
+            }
+        }
+        return $commentsnew;
+        
+        
+    }
     public function getAllCommentsCuaMotQuan($idquan,$user){
         $commentsnew=[];
         $usernew=$user;
@@ -91,5 +115,21 @@ class Comment1{
         $this->Create_time = $Create_time;
         $this->binhluan = $binhluan;
         $this->quyenUpdate = $quyenUpdate;
+    }
+}
+class Comment2
+{
+    public $id;
+    public $tenUser;
+    public $review;
+    public $Create_time;
+    public $binhluan;
+    public function __construct($id, $tenUser, $review, $Create_time, $binhluan)
+    {
+        $this->id = $id;
+        $this->tenUser = $tenUser;
+        $this->review = $review;
+        $this->Create_time = $Create_time;
+        $this->binhluan = $binhluan;
     }
 }

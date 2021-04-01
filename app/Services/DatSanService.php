@@ -373,7 +373,7 @@ class DatSanService
         $datsans = array();
         
         foreach ($quans as $quan) {
-            $sans= $this->sanService->getSansByIdquan($quan->id);
+            $sans= $this->sanService->getSansByIdquanVaTrangthai($quan->id,1);
             $datsancuaquan=new datsancuaquan($quan->id,$quan->name,$quan->address,$quan->phone,$sans,$this->getTinhTrangDatSansByIdquanVaNgay($sans, $start_time));
             array_push($datsans,$datsancuaquan);           
         }

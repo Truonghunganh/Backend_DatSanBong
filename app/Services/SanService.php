@@ -8,6 +8,20 @@ use App\Models\Models\San;
 
 class SanService
 {
+    public function getSansByIdquanVaTrangthai($idquan,$trangthai)
+    {
+        $sans = San::query()->where('idquan', '=', $idquan)->where('trangthai',$trangthai)->get();
+        $sansnew = [];
+        for ($i = 0; $i < $sans->count(); $i++) {
+            array_push($sansnew, new San1($sans[$i]->id, $sans[$i]->idquan, $sans[$i]->name, $sans[$i]->numberpeople, $sans[$i]->trangthai, $sans[$i]->priceperhour, $sans[$i]->Create_time, $sans[$i]->xacnhan));
+        }
+        $keys = array_column($sansnew, 'id');
+        // SORT_ASC : laf tăng dần
+        array_multisort($keys, SORT_ASC, $sansnew);
+
+        return $sansnew;
+    }
+    
     public function getSansByIdquan($idquan)
     {
           $sans =San::query()->where('idquan', '=', $idquan)->get();
