@@ -87,6 +87,7 @@ Route::prefix('v1')->group(function () {
     Route::post('getChiTietDanhthuCuaMotQuanByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getChiTietDanhthuCuaMotQuanByAdmin');
     Route::post('getTongDoanhCuaMotQuanThuTheoNamByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getTongDoanhCuaMotQuanThuTheoNamByAdmin');
     Route::post('getDoanhThuListQuanCuaMotNamByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuListQuanCuaMotNamByAdmin');
+    Route::get('getAllCommentCuaMotQuanByAdmin', 'App\Http\Controllers\Api\V1\CommentController@getAllCommentCuaMotQuanByAdmin');
             
 });
 

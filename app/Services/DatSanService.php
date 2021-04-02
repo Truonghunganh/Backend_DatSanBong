@@ -261,7 +261,7 @@ class DatSanService
             date_default_timezone_set("Asia/Ho_Chi_Minh");
             $time = date('Y-m-d H:i:s');
         
-           return Datsan::updateOrCreate(
+            Datsan::updateOrCreate(
                 [
                     'id' => null
                 ],
@@ -275,6 +275,7 @@ class DatSanService
                 ]
             );
             DB::commit();
+            return true;
         } catch (\Exception $e) {
             DB::rollBack();
             return false;

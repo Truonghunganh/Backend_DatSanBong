@@ -412,11 +412,13 @@ class DatSanController extends Controller
                     ]);
                 }
                 $sans = $this->sanService->getSansByIdquan($request->get('idquan'));
-                $datsans = $this-> datSanService->getDatSansByInnkeeperAndIdquanAndNgay($sans,  $request->get("start_time"));
+                $sansTT=$this->sanService->getSansByIdquanVaTrangthai($request->get('idquan'),1);
+                $datsans = $this-> datSanService->getDatSansByInnkeeperAndIdquanAndNgay($sansTT,  $request->get("start_time"));
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
                     'datsans' => $datsans,
+                    'sansTT' => $sansTT,
                     'sans' => $sans,
                 ]);
             } else {
@@ -462,7 +464,8 @@ class DatSanController extends Controller
                     ]); 
                 }
                 $sans = $this->sanService->getSansByIdquan($request->get('idquan'));
-                $datsans =  $this->datSanService->getTinhTrangDatSansByIdquanVaNgay($sans,$request->get('start_time'));            
+                $sansTT=$this->sanService->getSansByIdquanVaTrangthai($request->get('idquan'), 1);
+                $datsans =  $this->datSanService->getTinhTrangDatSansByIdquanVaNgay($sansTT,$request->get('start_time'));            
                 $reviewcuauser=0;
                 $review= $this->reviewService->findReviewByIduserVaIdquan($user->id, $request->get("idquan"));
                 if($review){
@@ -474,6 +477,7 @@ class DatSanController extends Controller
                     'datsans' => $datsans,
                     'sans' => $sans,
                     'quan' => $quan,
+                    'sansTT'=>$sansTT,
                     'reviewcuauser'=> $reviewcuauser
                 ]);
             } else {
@@ -517,14 +521,16 @@ class DatSanController extends Controller
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
                         'message' => "không quán này trong hệ thống"
                     ]);
-                }
+                 }
                 
                 $sans = $this->sanService->getSansByIdquan($request->get('idquan'));
-                $datsans = $this->datSanService->getDatSansByInnkeeperAndIdquanAndNgay($sans,  $request->get("start_time"));
+                $sansTrangthai=$this->sanService->getSansByIdquanVaTrangthai($request->get('idquan'), 1);
+                $datsans = $this->datSanService->getDatSansByInnkeeperAndIdquanAndNgay($sansTrangthai,  $request->get("start_time"));
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
                     'datsans' => $datsans,
+                    "sansTT"=>$sansTrangthai,
                     'sans' => $sans,
                     'quan'=>$quan
                 ]);
