@@ -146,13 +146,6 @@ class DatSanController extends Controller
             if ($userbyToken) {
                 $iduser=$userbyToken->id;
                 $datsans= $this->datSanService->getListDatSanByIduser($iduser);
-                if (count($datsans)==0) {
-                    return response()->json([
-                        'status' => false,
-                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => "id user không tồn tại"
-                    ]);    
-                }
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -259,16 +252,7 @@ class DatSanController extends Controller
                         'message' => "không thể xóa được vì thời gian đặt sân phải lớn hơn thời gian hiền tại"
                     ]);
                 }
-                $time=substr($datsan->start_time,0,10). " 00:00:00";
-                $doanhthu = $this->doanhThuService->getDoanhThuByIdquanAndTime($san->idquan,$time);
-                // $week = strtotime(date("Y-m-d", strtotime(date('Y-m-d'))) . " -1 week");
-                // $week = strftime("%Y-%m-%d", $week)." 00:00:00";
-                if($datsan->xacnhan==1&&$doanhthu){
-                    $tien=(int)$doanhthu->doanhthu-(int)$datsan->price;
-
-                    $this->doanhThuService->TruDoanhThuCuaQuan($doanhthu->id,$tien);
-                }
-                $ds= $this->datSanService->deleteDatsan($id);
+                $ds= $this->datSanService->deleteDatsan($id,$san,$datsan);
                 if ($ds) {
                     return response()->json([
                         'status' => true,
@@ -340,7 +324,7 @@ class DatSanController extends Controller
                     ]);
                 }
                 
-                if ($innkeeper[0]->phone != $quan->phone) {
+                if ($innkeeper->phone != $quan->phone) {
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -401,7 +385,7 @@ class DatSanController extends Controller
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => "ban không có quyền truy cập đến quán này"
+                        'message' => "quán này không hoạt động"
                     ]);
                 }
                 if ($innkeeper->phone != $quan->phone) {

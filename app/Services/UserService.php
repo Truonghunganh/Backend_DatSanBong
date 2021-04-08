@@ -62,37 +62,79 @@ class UserService
     public function getTokenUser($request,$role){
         return DB::table('users')->where('role', '=', $role)->where('phone', $request->get('phone'))->get()[0]->token;
     }
-    public function registerUser($request){
-        $userCheckPhone= User::where('phone','=', $request->get('phone'))->first();
-        if($userCheckPhone){
-            return true;
-        }
-        date_default_timezone_set("Asia/Ho_Chi_Minh");
-        $time = date('Y-m-d H:i:s');
-         
-        DB::insert(
-            'insert into users (role,name,phone,gmail,address,password,Create_time) values (?,?, ?,?, ?,?,?)', 
-        [
-            "user",
-            $request->get('name'),
-            $request->get('phone'),
-            $request->get('gmail'),
-            $request->get('address'),
-            bcrypt($request->get('password')),
-            $time
+    public function register($request)
+    {
+        DB::beginTransaction();
+        try {
+            $userCheckPhone = User::where('phone', '=', $request->get('phone'))->first();
+            if ($userCheckPhone) {
+                return true;
+            }
+            date_default_timezone_set("Asia/Ho_Chi_Minh");
+            $time = date('Y-m-d H:i:s');
 
-        ]);
-        $user = User::where("phone", "=", $request->get('phone'))->first();
-        if ($user) {
-            $token = JWTAuth::fromUser($user);
-            DB::update(
-                'update users set token = ? where phone = ?',
-                [$token, $request->get('phone')]
+            DB::insert(
+                'insert into users (role,name,phone,gmail,address,password,Create_time) values (?,?, ?,?, ?,?,?)',
+                [
+                    $request->get('role'),
+                    $request->get('name'),
+                    $request->get('phone'),
+                    $request->get('gmail'),
+                    $request->get('address'),
+                    bcrypt($request->get('password')),
+                    $time
+
+                ]
             );
+            $user = User::where("phone", "=", $request->get('phone'))->first();
+            if ($user) {
+                $token = JWTAuth::fromUser($user);
+                DB::update(
+                    'update users set token = ? where phone = ?',
+                    [$token, $request->get('phone')]
+                );
+            }
+            
+            DB::commit();
+            return false;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            //return false;
+            throw new \Exception($e->getMessage());
         }
-        return false;
-      
     }
+    
+    // public function registerUser($request){
+    //     $userCheckPhone= User::where('phone','=', $request->get('phone'))->first();
+    //     if($userCheckPhone){
+    //         return true;
+    //     }
+    //     date_default_timezone_set("Asia/Ho_Chi_Minh");
+    //     $time = date('Y-m-d H:i:s');
+         
+    //     DB::insert(
+    //         'insert into users (role,name,phone,gmail,address,password,Create_time) values (?,?, ?,?, ?,?,?)', 
+    //     [
+    //         "user",
+    //         $request->get('name'),
+    //         $request->get('phone'),
+    //         $request->get('gmail'),
+    //         $request->get('address'),
+    //         bcrypt($request->get('password')),
+    //         $time
+
+    //     ]);
+    //     $user = User::where("phone", "=", $request->get('phone'))->first();
+    //     if ($user) {
+    //         $token = JWTAuth::fromUser($user);
+    //         DB::update(
+    //             'update users set token = ? where phone = ?',
+    //             [$token, $request->get('phone')]
+    //         );
+    //     }
+    //     return false;
+      
+    // }
     public  function getUser($request)
     {
         return User::where("phone", "=", $request->get('phone'))->first();

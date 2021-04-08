@@ -23,9 +23,13 @@ class UserController extends Controller
     public function logout(){
         Auth::logout();
     }
-    public function registerUser(Request $request){
+    public function register(Request $request){
         try {
             $validator = Validator::make($request->all(), [
+                'role' => 'required',
+                'name' => 'required',
+                'address'=> 'required',
+                'gmail' => 'required',
                 'phone' => 'required|min:8',
                 'password' => 'required|min:8',
             ]);
@@ -37,7 +41,7 @@ class UserController extends Controller
                     'message' => $validator->errors()
                 ]);
             }
-            $user= $this->userService->registerUser($request);
+            $user= $this->userService->register($request);
             if ($user) {
                 return response()->json([
                     'status' => false,
@@ -59,6 +63,42 @@ class UserController extends Controller
         }
     }
 
+    // public function registerUser(Request $request)
+    // {
+    //     try {
+    //         $validator = Validator::make($request->all(), [
+    //             'phone' => 'required|min:8',
+    //             'password' => 'required|min:8',
+    //         ]);
+
+    //         if ($validator->fails()) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+    //                 'message' => $validator->errors()
+    //             ]);
+    //         }
+    //         $user = $this->userService->registerUser($request);
+    //         if ($user) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+    //                 'message' => "số điên thoại đã tôn tại không thể đăng ký được"
+    //             ]);
+    //         }
+    //         return response()->json([
+    //             'status' => true,
+    //             'code' => Response::HTTP_OK,
+    //             'message' => "bạn đã đăng kí thành công "
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+    //             'message' => $e->getMessage()
+    //         ]);
+    //     }
+    // }
 
 
     public function loginUser(Request $request)

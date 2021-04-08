@@ -9,19 +9,27 @@ class CheckTokenService
 {
     public function getTokenByPhone($request, $role)
     {
-        $user = User::where('role', '=', $role)->where('phone', $request->get('phone'))->get();
-        if (count($user)> 0) {
-            return $user[0]->token;
+        $user = User::where('role', '=', $role)->where('phone', $request->get('phone'))->first();
+        if ($user) {
+            return $user->token;
         } else {
             return true;
         }
          
     }
-    
+    public function getUserByPhone($phone)
+    {
+        $user = User::where('phone', $phone)->first();
+        if ($user) {
+            return $user;
+        } else {
+            return true;
+        }
+    }
     public function checkTokenUser($request)
     {
         try {
-            $token=$request->header('tokenUser');
+            $token=$request->header('token');
             if (!$token) {
                 return false;
             }
@@ -36,11 +44,23 @@ class CheckTokenService
             return false;
         }
     }
+    public function checkToken($request)
+    {
+        try {
+            $token = $request->header('token');
+            if (!$token) {
+                return false;
+            }
+            return User::where('token', $token)->first();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 
     public function checkTokenAdmin($request)
     {
         try {
-            $token = $request->header('tokenAdmin');
+            $token = $request->header('token');
             if (!$token) {
                 return false;
             }
@@ -56,7 +76,7 @@ class CheckTokenService
     {
 
         try {
-            $token = $request->header('tokenInnkeeper');
+            $token = $request->header('token');
             if (!$token) {
                 return false;
             }
@@ -70,7 +90,7 @@ class CheckTokenService
     {
 
         try {
-            $token = $request->header('tokenInnkeeper');
+            $token = $request->header('token');
             if (!$token) {
                 return false;
             }

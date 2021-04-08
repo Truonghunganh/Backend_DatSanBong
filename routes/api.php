@@ -23,9 +23,9 @@ Route::prefix('v1')->group(function () {
     
     Route::get('getListDatSanByUserToken', 'App\Http\Controllers\Api\V1\DatSanController@getListDatSanByUserToken');
     Route::put('editUserByToken', 'App\Http\Controllers\Api\V1\UserController@editUserByToken');
-    Route::post('registerUser', 'App\Http\Controllers\Api\V1\UserController@registerUser');
+    // Route::post('registerUser', 'App\Http\Controllers\Api\V1\UserController@registerUser');
     
-    Route::post('loginUser', 'App\Http\Controllers\Api\V1\UserController@loginUser')->name('loginUser');
+    // Route::post('loginUser', 'App\Http\Controllers\Api\V1\UserController@loginUser')->name('loginUser');
     Route::get('checkTokenUser', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenUser');
     Route::get('getAllQuanDangHoatdongByUser', 'App\Http\Controllers\Api\V1\QuanController@getAllQuanDangHoatdongByUser');
     Route::post('reviewByUser', 'App\Http\Controllers\Api\V1\ReviewController@reviewByUser');
@@ -38,8 +38,8 @@ Route::prefix('v1')->group(function () {
     
     // chủ quán : quản lý các quán của mình 
     Route::get('checkTokenInnkeeper', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');
-    Route::post('loginInnkeeper', 'App\Http\Controllers\Api\V1\ChuQuanController@loginInnkeeper');
-    Route::post('registerInnkeeper', 'App\Http\Controllers\Api\V1\ChuQuanController@registerInnkeeper');
+    // Route::post('loginInnkeeper', 'App\Http\Controllers\Api\V1\ChuQuanController@loginInnkeeper');
+    // Route::post('registerInnkeeper', 'App\Http\Controllers\Api\V1\ChuQuanController@registerInnkeeper');
     Route::put('editInnkeeperByToken', 'App\Http\Controllers\Api\V1\ChuQuanController@editInnkeeperByToken');
 
     Route::get('getQuanByIdAndTokenInnkeeper', 'App\Http\Controllers\Api\V1\QuanController@getQuanByIdAndTokenInnkeeper');
@@ -67,15 +67,16 @@ Route::prefix('v1')->group(function () {
     Route::post('getChiTietDanhthuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getChiTietDanhthuByInnkeeper');
     Route::post('thayDoiTrangthaiSanByInnkeeper', 'App\Http\Controllers\Api\V1\SanController@thayDoiTrangthaiSanByInnkeeper');
     Route::get('getAllCommentCuaMotQuanByInnkeeper', 'App\Http\Controllers\Api\V1\CommentController@getAllCommentCuaMotQuanByInnkeeper');
+    Route::get('getListQuansByTrangthaiChoHome', 'App\Http\Controllers\Api\V1\QuanController@getListQuansByTrangthaiChoHome');
 
     //Route::get('get', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenInnkeeper');getAllCommentCuaMotQuanByInnkeeper
-    
+     
     Route::post('thu', 'App\Http\Controllers\Api\V1\CheckTokenController@thu');
     
     // admin : quản lý các quán getDatSansvaSansByInnkeeperAndIdquanAndNgay,Route::post('getDoanhThuByInnkeeper', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuByInnkeeper');
     
     Route::get('checkTokenAdmin', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenAdmin');
-    Route::post('loginAdmin', 'App\Http\Controllers\Api\V1\AdminController@loginAdmin');
+    // Route::post('loginAdmin', 'App\Http\Controllers\Api\V1\AdminController@loginAdmin');
     Route::put('editAdminByToken', 'App\Http\Controllers\Api\V1\AdminController@editAdminByToken');
     Route::get('getListQuansDaPheDuyetByTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@getListQuansDaPheDuyetByTokenAdmin');
     Route::get('getListQuansChuaPheDuyetByTokenAdmin', 'App\Http\Controllers\Api\V1\QuanController@getListQuansChuaPheDuyetByTokenAdmin');
@@ -88,7 +89,14 @@ Route::prefix('v1')->group(function () {
     Route::post('getTongDoanhCuaMotQuanThuTheoNamByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getTongDoanhCuaMotQuanThuTheoNamByAdmin');
     Route::post('getDoanhThuListQuanCuaMotNamByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuListQuanCuaMotNamByAdmin');
     Route::get('getAllCommentCuaMotQuanByAdmin', 'App\Http\Controllers\Api\V1\CommentController@getAllCommentCuaMotQuanByAdmin');
-            
+
+
+    Route::post('login', 'App\Http\Controllers\Api\V1\CheckTokenController@login');
+    Route::get('checkToken', 'App\Http\Controllers\Api\V1\CheckTokenController@checkToken');
+    Route::post('register', 'App\Http\Controllers\Api\V1\UserController@register');
+        
+
+
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {getTongDoanhCuaMotQuanThuTheoNamByAdmin

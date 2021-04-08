@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Services\CheckTokenService;
-use App\Models\Models\DanhThu;
+use App\Models\Models\DoanhThu;
 use App\Services\QuanService;
 use App\Services\SanService;
 use App\Services\UserService;
@@ -24,12 +24,25 @@ class DatSanService
         $this->sanService = $sanService;
         $this->userService = $userService;
     }
-    public function deleteDatsan($id){
-        $ds=DB::delete('delete datsans where id = ?', [$id]);
-        if($ds){
-            return true;   
+    public function deleteDatsan($id,$san,$datsan){
+        DB::beginTransaction();
+        try {
+            DatSan::find($id)->delete();
+            $time = substr($datsan->start_time, 0, 10) . " 00:00:00";
+            $doanhthu = DoanhThu::where('idquan', $san->idquan)->where('time', $time)->first();
+            if ($datsan->xacnhan == 1 && $doanhthu) {
+                $tien = (int)$doanhthu->doanhthu - (int)$datsan->price;
+                DB::update('update doanhthus set doanhthu= ? where id = ?', [$tien, $doanhthu->id]);
+            }
+                
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            //return false;
+            throw new \Exception($e->getMessage());
         }
-        return false;
+       
     }
     public function find($id){
         return DatSan::find($id);
@@ -44,33 +57,21 @@ class DatSanService
             $nam = substr($start_time, 0, 4);
             $thang = substr($start_time, 5, 2);
             $ngay = substr($start_time, 8, 2);
-
-            if ($xacnhan) {
-                $doanhthu = DB::table('doanhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $san->idquan)->get();
-                if (count($doanhthu) > 0) {
-                    $priceNew = (int)$doanhthu[0]->doanhthu + (int)$price;
-                    DB::update('update doanhthus set doanhthu=? where id = ?', [$priceNew, $doanhthu[0]->id]);
-                } else {
-                    DB::insert('insert into doanhthus (idquan, doanhthu,time) values (?, ?,?)', [$san->idquan, $price, substr($start_time, 0, 10) . " 00:00:00"]);
-                }
-
-                $chonquan = DB::table('chonquans')->where("iduser", $datsan->iduser)->where("idquan", $san->idquan)->first();
-                if ($chonquan) {
-                    DB::update('update chonquans set solan = ? where id = ?', [$chonquan->solan + 1, $chonquan->id]);
-                } else {
-                    DB::insert('insert into chonquans (iduser, idquan,solan) values (?, ?,?)', [$datsan->iduser, $san->idquan, 1]);
-                }
-
-                return true;
+            $doanhthu = DB::table('doanhthus')->whereDay('time', $ngay)->whereMonth('time', $thang)->whereYear('time', $nam)->where('idquan', '=', $san->idquan)->first();
+            $priceNew = (int)$doanhthu->doanhthu + (int)$price;
+            DB::update('update doanhthus set doanhthu=? where id = ?', [$priceNew, $doanhthu->id]);
+            $chonquan = DB::table('chonquans')->where("iduser", $datsan->iduser)->where("idquan", $san->idquan)->first();
+            if ($chonquan) {
+                DB::update('update chonquans set solan = ? where id = ?', [$chonquan->solan + 1, $chonquan->id]);
             } else {
-                return false;
+                DB::insert('insert into chonquans (iduser, idquan,solan) values (?, ?,?)', [$datsan->iduser, $san->idquan, 1]);
             }
-        
 
             DB::commit();
+            return true;
         } catch (\Exception $e) {
             DB::rollBack();
-
+            return false;
             throw new \Exception($e->getMessage());
         }
                 
@@ -120,55 +121,75 @@ class DatSanService
         }
         return $datsans;
     }
-    public function mangdatsancuamotsan($datdsan){
+    public function mangdatsancuamotsan($datsans){
         $array = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
-        for($i=0; $i<count($datdsan); $i++){
-            switch (substr($datdsan[$i]->start_time,11,2)) {
-                case "05": $array[0] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan,$this->userService->getUserById($datdsan[$i]->iduser) , $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);break;
+        for($i=0; $i<count($datsans); $i++){
+            if (!$datsans[$i]->xacnhan) {
+                break;
+            }
+            switch (substr($datsans[$i]->start_time,11,2)) {
+                case "05":
+                     $array[0] = new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan,$this->userService->getUserById($datsans[$i]->iduser) , $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
+                     break;
                 case "06":
-                    $array[1] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[1] =
+                    new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "07":
-                    $array[2] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[2] =
+                    new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "08":
-                    $array[3] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[3] =
+                    new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "09":
-                    $array[4] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[4] =
+                    new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "10":
-                    $array[5] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[5] =
+                    new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "11":
-                    $array[6] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[6] =
+                    new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "12":
-                    $array[7] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[7]
+                    = new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "13":
-                    $array[8] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[8]
+                    = new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "14":
-                    $array[9] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[9]
+                    = new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "15":
-                    $array[10] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[10] =
+                    new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "16":
-                    $array[11] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[11]
+                    = new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "17":
-                    $array[12] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[12] =
+                    new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "18":
-                    $array[14] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[13]
+                    = new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "19":
-                    $array[15] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[14]
+                    = new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 case "20":
-                    $array[16] = new DatsanByInnkeeper($datdsan[$i]->id, $datdsan[$i]->idsan, $this->userService->getUserById($datdsan[$i]->iduser), $datdsan[$i]->start_time, $datdsan[$i]->price, $datdsan[$i]->Create_time);
+                    $array[15] =
+                    new DatsanByInnkeeper($datsans[$i]->id, $datsans[$i]->idsan, $this->userService->getUserById($datsans[$i]->iduser), $datsans[$i]->start_time, $datsans[$i]->price, $datsans[$i]->Create_time);
                     break;
                 
                 default:

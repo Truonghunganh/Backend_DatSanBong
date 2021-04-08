@@ -17,9 +17,18 @@ class QuanController extends Controller
         $this->quanService = $quanService;
         $this->checkTokenService = $checkTokenService;
     }
+    public function getListQuansByTrangthaiChoHome(Request $request){
+        return response()->json([
+            'status' => true,
+            'code' => Response::HTTP_OK,
+            'quans' => $this->quanService->getAllQuansByTrangthai(1)
+        ]);   
+        
+    }
     public function index(Request $request)
     { 
        try {
+           
            $checkTokenUser=$this->checkTokenService->checkTokenUser($request);
            if ($checkTokenUser) {
                 $quans = $this->quanService->getListQuansByTrangthai(1, $checkTokenUser->id);
@@ -603,24 +612,15 @@ class QuanController extends Controller
                     'message' => $validator->errors()
                 ]);
             }
-            $token = $this->checkTokenService->checkTokenUser($request);
-            if ($token) {
-                $quans= $this->quanService->searchListQuans($request->get("search"));
-                if (count($quans)==0) {
-                    $quans= $this->quanService->searchListQuans1($request->get("search"));
-                }
-                return response()->json([
-                    'status'  => true,
-                    'code'    => Response::HTTP_OK,
-                    'quans' => $quans
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => "token user không đúng"
-                ]);
+            $quans = $this->quanService->searchListQuans($request->get("search"));
+            if (count($quans) == 0) {
+                $quans = $this->quanService->searchListQuans1($request->get("search"));
             }
+            return response()->json([
+                'status'  => true,
+                'code'    => Response::HTTP_OK,
+                'quans' => $quans
+            ]);
         } catch (\Exception $e1) {
             return response()->json([
                 'status' => false,

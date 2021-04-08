@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Models\DatSan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class CheckTokenController extends Controller
@@ -60,13 +61,82 @@ class CheckTokenController extends Controller
             'code' => $week
         ]);
     }
-   
+
+    public function login(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required|min:8',
+                'password' => 'required|min:8',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+            $login = [
+                'phone' => $request->get('phone'),
+                'password' => $request->get('password')
+            ];
+            if (Auth::attempt($login)) {
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'message' => "đăng nhập thành công ",
+                    'user' => $this->checkTokenService->getUserByPhone($request->get("phone"))
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "đăng nhập thất bại vì phone và password không đúng"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function checkToken(Request $request)
+    {
+        try {
+            $checkToken = $this->checkTokenService->checkToken($request);
+            if ($checkToken) {
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address, $checkToken->role);
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'user' => $user
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token user false"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => "token user sai"
+            ]);
+        }
+    }
+    
     public function checkTokenUser(Request $request)
     {
         try {
             $checkToken= $this->checkTokenService->checkTokenUser($request);
             if ($checkToken) {
-                $user=new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address, $checkToken->role);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -92,7 +162,7 @@ class CheckTokenController extends Controller
         try {
             $checkToken = $this->checkTokenService->checkTokenInnkeeper($request);
             if ($checkToken) {
-                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address, $checkToken->role);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -119,7 +189,7 @@ class CheckTokenController extends Controller
         try {
             $checkToken = $this->checkTokenService->checkTokenAdmin($request);
             if ($checkToken) {
-                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address, $checkToken->role);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -165,7 +235,7 @@ class CheckTokenController extends Controller
                         'message' => "bạn không có quyền truy cập đến quán này"
                     ]);    
                 }
-                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address, $checkToken->role);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -211,7 +281,7 @@ class CheckTokenController extends Controller
                     ]);
         
                 }
-                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address);
+                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address,$checkToken->role);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -241,12 +311,14 @@ class User
     public $phone;
     public $gmail;
     public $address;
-    public function __construct($id, $name, $phone, $gmail, $address)
+    public $role;
+    public function __construct($id, $name, $phone, $gmail, $address, $role)
     {
         $this->id = $id;
         $this->name = $name;
         $this->phone = $phone;
         $this->gmail = $gmail;
         $this->address = $address;
+        $this->role = $role;
     }
 }
