@@ -68,7 +68,15 @@ class DoanhThuService
         return $tongdoanhthus;
     }
     public function TruDoanhThuCuaQuan($id,$tien){
-        DB::update('update doanhthus set doanhthu= ? where id = ?', [$tien,$id]);
+        DB::beginTransaction();
+        try {
+            DB::update('update doanhthus set doanhthu= ? where id = ?', [$tien, $id]);
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
     }
     public function getDoanhThuByIdquanAndTime($idquan,$time){
         return DoanhThu::where('idquan',$idquan)->where('time',$time)->first();

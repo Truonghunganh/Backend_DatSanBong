@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\V1;
 
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\AdminService;
+use App\Services\UserService;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
@@ -15,10 +17,12 @@ class AdminController extends Controller
 {
     protected $adminService;
     protected $checkTokenService;
-    public function __construct(AdminService $adminService, CheckTokenService $checkTokenService)
+    protected $userService;
+    public function __construct(AdminService $adminService, CheckTokenService $checkTokenService,UserService $userService)
     {
         $this->adminService = $adminService;
         $this->checkTokenService = $checkTokenService;
+        $this->userService = $userService;
     }
     public function loginAdmin(Request $request)
     {
@@ -85,7 +89,7 @@ class AdminController extends Controller
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'token' => $this->adminService->editAdminByToken($request, $checktoken->id)
+                    'token' => $this->userService->editUserByToken($request, $checktoken->id)
                 ]);
             } else {
                 return response()->json([

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1;
 
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\ChuQuanService;
+use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
@@ -11,12 +12,15 @@ use Illuminate\Http\Request;
 use App\Services\CheckTokenService;
 class ChuQuanController extends Controller
 {
+    protected $userService;
+    
     protected $chuquanService;
     protected $checkTokenService;
-    public function __construct(ChuQuanService $chuquanService, CheckTokenService $checkTokenService)
+    public function __construct(ChuQuanService $chuquanService, CheckTokenService $checkTokenService,UserService $userService)
     {
         $this->chuquanService = $chuquanService;
         $this->checkTokenService = $checkTokenService;
+        $this->userService = $userService;
     }
 
     public function loginInnkeeper(Request $request)
@@ -121,7 +125,7 @@ class ChuQuanController extends Controller
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'token' => $this->chuquanService->editInnkeeperByToken($request, $checktoken->id)
+                    'token' => $this->userService->editUserByToken($request, $checktoken->id)
                 ]);
             } else {
                 return response()->json([

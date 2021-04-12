@@ -30,33 +30,39 @@ class UserService
     
     public function editUserByToken($request,$id)
     {
-        date_default_timezone_set("Asia/Ho_Chi_Minh");
-        $time = date('Y-m-d H:i:s');
-         
-        DB::update(
-        'update users set name=?,gmail=?,address=?,password=?,Create_time=? where id = ?',
-            [
-                $request->get('name'),
-                $request->get('gmail'),
-                $request->get('address'),
-                bcrypt($request->get('password')),
-                $time, 
-                $id
-
-            ]
-        );
-        $user = User::where("id", "=", $id)->get();
-        if (count($user) > 0) {
-            $token = JWTAuth::fromUser($user[0]);
+        DB::beginTransaction();
+        try {
+            date_default_timezone_set("Asia/Ho_Chi_Minh");
+            $time = date('Y-m-d H:i:s');
+            $token = "";
             DB::update(
-                'update users set token = ? where phone = ?',
-                [$token, $request->get('phone')]
+                'update users set name=?,gmail=?,address=?,password=?,Create_time=? where id = ?',
+                [
+                    $request->get('name'),
+                    $request->get('gmail'),
+                    $request->get('address'),
+                    bcrypt($request->get('password')),
+                    $time,
+                    $id
+                ]
             );
+            $user = User::where("id", "=", $id)->first();
+            if ($user) {
+                $token = JWTAuth::fromUser($user);
+                DB::update(
+                    'update users set token = ? where phone = ?',
+                    [$token, $request->get('phone')]
+                );
+            } else {
+                return false;
+            }
+            DB::commit();
             return $token;
-        }else {
-            return "id k có nên k có token";     
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
         }
-      
+
     }
     
     public function getTokenUser($request,$role){
@@ -72,7 +78,6 @@ class UserService
             }
             date_default_timezone_set("Asia/Ho_Chi_Minh");
             $time = date('Y-m-d H:i:s');
-
             DB::insert(
                 'insert into users (role,name,phone,gmail,address,password,Create_time) values (?,?, ?,?, ?,?,?)',
                 [
@@ -99,7 +104,7 @@ class UserService
             return false;
         } catch (\Exception $e) {
             DB::rollBack();
-            //return false;
+            return true;
             throw new \Exception($e->getMessage());
         }
     }

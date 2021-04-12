@@ -74,30 +74,50 @@ class CommentService
     }
 
     public function addComment($idquan, $user,$binhluan){
-        date_default_timezone_set("Asia/Ho_Chi_Minh");
-        $time = date('Y-m-d H:i:s');
-        $iduser=$user->id;
-        
-        $review= $this->reviewService->findReviewByIduserVaIdquan($iduser, $idquan);
-        
-        if (!$review) {
-            $this->reviewService->addReview($iduser, $idquan, 0);
+        DB::beginTransaction();
+        try {
+            date_default_timezone_set("Asia/Ho_Chi_Minh");
+            $time = date('Y-m-d H:i:s');
+            $iduser = $user->id;
             $review = $this->reviewService->findReviewByIduserVaIdquan($iduser, $idquan);
+            if (!$review) {
+                $this->reviewService->addReview($iduser, $idquan, 0);
+                $review = $this->reviewService->findReviewByIduserVaIdquan($iduser, $idquan);
+            }
+            DB::insert('insert into comments (idreview, binhluan,Create_time) values (?, ?,?)', [$review->id, $binhluan, $time]);
+            DB::commit();
+            return $this->getAllCommentsCuaMotQuan($idquan, $user);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
         }
-        DB::insert('insert into comments (idreview, binhluan,Create_time) values (?, ?,?)', [$review->id,$binhluan,$time ]);
-        return $this->getAllCommentsCuaMotQuan($idquan,$user);
+        
     }
     public function findById($id){
         return Comment::find($id);
     }
     public function updateComment($id,$binhluan,$idquan,$user){
-        DB::update('update comments set binhluan = ? where id = ?', [$binhluan,$id]);
-        return $this->getAllCommentsCuaMotQuan($idquan, $user);
-        
+        DB::beginTransaction();
+        try {
+            DB::update('update comments set binhluan = ? where id = ?', [$binhluan, $id]);
+            DB::commit();
+            return $this->getAllCommentsCuaMotQuan($idquan, $user);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
     }
     public function deleteComment($id,$idquan,$user){
-        Comment::find($id)->delete();
-        return $this->getAllCommentsCuaMotQuan($idquan, $user);
+        DB::beginTransaction();
+        try {
+            Comment::find($id)->delete();
+            DB::commit();
+            return $this->getAllCommentsCuaMotQuan($idquan, $user);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+       
     }
 }
 

@@ -44,6 +44,17 @@ class DatSanService
         }
        
     }
+    public function thư(){
+        DB::beginTransaction();
+        try {
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+       
+    }
     public function find($id){
         return DatSan::find($id);
     }
