@@ -89,12 +89,15 @@ Route::prefix('v1')->group(function () {
     Route::post('getTongDoanhCuaMotQuanThuTheoNamByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getTongDoanhCuaMotQuanThuTheoNamByAdmin');
     Route::post('getDoanhThuListQuanCuaMotNamByAdmin', 'App\Http\Controllers\Api\V1\DoanhThuController@getDoanhThuListQuanCuaMotNamByAdmin');
     Route::get('getAllCommentCuaMotQuanByAdmin', 'App\Http\Controllers\Api\V1\CommentController@getAllCommentCuaMotQuanByAdmin');
-
+    Route::resource('users', 'App\Http\Controllers\Api\V1\UserController')->only(['index']);
+    Route::put('editUserByAdmin', 'App\Http\Controllers\Api\V1\UserController@editUserByAdmin');
+    Route::get('searchUsersByAdmin', 'App\Http\Controllers\Api\V1\UserController@searchUsersByAdmin');
+    
 
     Route::post('login', 'App\Http\Controllers\Api\V1\CheckTokenController@login');
     Route::get('checkToken', 'App\Http\Controllers\Api\V1\CheckTokenController@checkToken');
     Route::post('register', 'App\Http\Controllers\Api\V1\UserController@register');
-        
+    
 
 
 });

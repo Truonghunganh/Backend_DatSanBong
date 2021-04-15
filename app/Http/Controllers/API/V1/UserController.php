@@ -20,6 +20,89 @@ class UserController extends Controller
         $this->userService = $userService;
         $this->checkTokenService = $checkTokenService;
     }
+    public function searchUsersByAdmin(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                'search'=> 'required',
+                'role' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $tonken = $this->checkTokenService->checkTokenAdmin($request);
+            if ($tonken) {
+                $users = $this->userService->searchUsersByAdmin($request->get('role'),$request->get('search'));
+            
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'users' =>  $users,
+                    'role' => $request->get('role')
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token bị sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->checkddatsan = true;
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function index(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+
+                'user' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+
+            $tonken = $this->checkTokenService->checkTokenAdmin($request);
+            $soluong = $request->get('soluong') ?? 10;
+            $users=$this->userService->getUserByAdmin($request->get("user"),$soluong);
+            if ($tonken) {
+                return response()->json([
+                    'status' => true,
+                    'code' => Response::HTTP_OK,
+                    'users' =>  $this->userService->getListUsers($users->items()),
+                    'tongpage' => $users->lastPage()
+                ]);                
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token bị sai"
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->checkddatsan = true;
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function logout(){
         Auth::logout();
     }
@@ -144,7 +227,59 @@ class UserController extends Controller
             ]);
         }
      }
-    public function editUserByToken(Request $request){
+    public function editUserByAdmin(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required',
+                'name' => 'required',
+                'phone' => 'required|min:8',
+                'gmail' => 'required',
+                'address' => 'required',
+                'password' => 'required|min:8',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => $validator->errors()
+                ]);
+            }
+            $checktoken = $this->checkTokenService->checkTokenAdmin($request);
+            if ($checktoken) {
+                $user= $this->userService->editUserByAdmin($request,$request->get('id'));
+                if ($user) {
+                    return response()->json([
+                        'status' => true,
+                        'code' => Response::HTTP_OK,
+                        'message'=>"chỉnh sữa thành công"
+                    ]);    
+                }else {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "chỉnh sữa thất bại"
+                    ]);    
+                }
+                
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "token not found"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+     public function editUserByToken(Request $request){
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
