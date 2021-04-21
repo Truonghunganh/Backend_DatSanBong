@@ -28,6 +28,13 @@ class CheckTokenController extends Controller
     }
     public function thu(Request $request)
     {
+
+        date_default_timezone_set("Asia/Ho_Chi_Minh");
+        $time = date('Y-m-d H:i:s');
+        //  $week = strtotime(date("Y-m-d H:i:s", strtotime($time)) . " -1 days");
+        return $week = strftime("%Y-%m-%d %H:%M:%S", strtotime(date("Y-m-d H:i:s", strtotime($time)) . " -1 days"));
+
+
          //$config = require('config');
 
         return  require("key");
@@ -109,24 +116,24 @@ class CheckTokenController extends Controller
         try {
             $checkToken = $this->checkTokenService->checkToken($request);
             if ($checkToken) {
-                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address, $checkToken->role);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'user' => $user
+                    'user' => $checkToken,
+                    'token' =>$request->header('token')
                 ]);
             } else {
                 return response()->json([
                     'status' => false,
                     'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => "token user false"
+                    'message' => "token bị sai"
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => "token user sai"
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -136,24 +143,24 @@ class CheckTokenController extends Controller
         try {
             $checkToken= $this->checkTokenService->checkTokenUser($request);
             if ($checkToken) {
-                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address, $checkToken->role);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'user' => $user
+                    'user' => $checkToken,
+                    'role' =>"user"
                 ]);
             } else {
                 return response()->json([
                     'status' => false,
                     'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => "token user false"
+                    'message' => "token không đúng",
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => "token user sai"
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -162,11 +169,10 @@ class CheckTokenController extends Controller
         try {
             $checkToken = $this->checkTokenService->checkTokenInnkeeper($request);
             if ($checkToken) {
-                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address, $checkToken->role);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'innkeeper' => $user
+                    'innkeeper' => $checkToken
                 ]);
             } else {
                 return response()->json([
@@ -189,11 +195,10 @@ class CheckTokenController extends Controller
         try {
             $checkToken = $this->checkTokenService->checkTokenAdmin($request);
             if ($checkToken) {
-                $user = new User($checkToken->id, $checkToken->name, $checkToken->phone, $checkToken->gmail, $checkToken->address, $checkToken->role);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'admin' => $user
+                    'admin' => $checkToken
                 ]);
             } else {
                 return response()->json([

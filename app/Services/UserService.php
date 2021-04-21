@@ -41,11 +41,13 @@ class UserService
         return User::where("role",$user)->paginate($soluong);
     }
     public function searchUsersByAdmin($role,$search){
-        $users= User::where('name', 'like', '%' . $search . '%')
-            ->orwhere("phone", 'like', '%' . $search . '%')
-            ->orwhere('address', 'like', '%' . $search . '%')
-            ->orwhere('gmail', 'like', '%' . $search . '%');
-        return $users->where("role", "=", $role)->get();
+        $users= User::select(["id", "name", "phone", "gmail", "address"])->where("role", "=", $role)->where(function($query) use ($search) {
+        $query->where('name', 'like', "%$search%")
+        ->orWhere("phone", 'like', "%$search%")
+        ->orWhere('address', 'like', "%$search%")
+        ->orWhere('gmail', 'like', "%$search%");
+        })->get();
+        return $users;
     }
 
     public function editUserByAdmin($request, $id)
@@ -107,8 +109,8 @@ class UserService
             if ($user) {
                 $token = JWTAuth::fromUser($user);
                 DB::update(
-                    'update users set token = ? where phone = ?',
-                    [$token, $request->get('phone')]
+                    'update users set token = ? where id = ?',
+                    [$token, $id]
                 );
             } else {
                 return false;

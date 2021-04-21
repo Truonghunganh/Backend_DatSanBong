@@ -27,7 +27,7 @@ Route::prefix('v1')->group(function () {
     
     // Route::post('loginUser', 'App\Http\Controllers\Api\V1\UserController@loginUser')->name('loginUser');
     Route::get('checkTokenUser', 'App\Http\Controllers\Api\V1\CheckTokenController@checkTokenUser');
-    Route::get('getAllQuanDangHoatdongByUser', 'App\Http\Controllers\Api\V1\QuanController@getAllQuanDangHoatdongByUser');
+    //Route::get('getAllQuanDangHoatdongByUser', 'App\Http\Controllers\Api\V1\QuanController@getAllQuanDangHoatdongByUser');
     Route::post('reviewByUser', 'App\Http\Controllers\Api\V1\ReviewController@reviewByUser');
     Route::get('getDatSansvaSansByUserAndIdquanAndNgay', 'App\Http\Controllers\Api\V1\DatSanController@getDatSansvaSansByUserAndIdquanAndNgay');
     Route::resource('comments', 'App\Http\Controllers\Api\V1\CommentController')->only(['index', 'store','update', 'destroy']);

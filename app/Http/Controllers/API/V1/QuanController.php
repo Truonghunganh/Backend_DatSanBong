@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\CheckTokenService;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Models\Quan;
 
 class QuanController extends Controller
 {
@@ -27,11 +28,10 @@ class QuanController extends Controller
     }
     public function index(Request $request)
     { 
-       try {
-           
+        try {
            $checkTokenUser=$this->checkTokenService->checkTokenUser($request);
            if ($checkTokenUser) {
-                $quans = $this->quanService->getListQuansByTrangthai(1, $checkTokenUser->id);
+                $quans = $this->quanService->getListQuansByTrangthai(Quan::ACTIVE_QUAN, $checkTokenUser->id);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -52,32 +52,32 @@ class QuanController extends Controller
             ]);
         }
     }
-    public function getAllQuanDangHoatdongByUser(Request $request)
-    {
-        try {
-            $checkTokenUser = $this->checkTokenService->checkTokenUser($request);
-            if ($checkTokenUser) {
-                $quans = $this->quanService->getAllQuansByTrangthai(1);
-                return response()->json([
-                    'status' => true,
-                    'code' => Response::HTTP_OK,
-                    'quans' => $quans
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => "token sai"
-                ]);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
+    // public function getAllQuanDangHoatdongByUser(Request $request)
+    // {
+    //     try {
+    //         $checkTokenUser = $this->checkTokenService->checkTokenUser($request);
+    //         if ($checkTokenUser) {
+    //             $quans = $this->quanService->getAllQuansByTrangthai(Quan::ACTIVE_QUAN);
+    //             return response()->json([
+    //                 'status' => true,
+    //                 'code' => Response::HTTP_OK,
+    //                 'quans' => $quans
+    //             ]);
+    //         } else {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+    //                 'message' => "token sai"
+    //             ]);
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+    //             'message' => $e->getMessage()
+    //         ]);
+    //     }
+    // }
     
     public function getQuanByIdAndTokenInnkeeper(Request $request){
         try {
@@ -148,7 +148,7 @@ class QuanController extends Controller
             $token = $this->checkTokenService->checkTokenUser($request);
             if ($token) {
                 $idquan = $request->get("idquan");
-                $quan = $this->quanService->findByIdVaTrangThai($idquan,1);
+                $quan = $this->quanService->findByIdVaTrangThai($idquan, Quan::ACTIVE_QUAN);
                 if (!$quan) {
                     return response()->json([
                         'status' => false,
@@ -218,7 +218,7 @@ class QuanController extends Controller
             $admin = $this->checkTokenService->checkTokenAdmin($request);
             if ($admin) {
                 $soluong=$request->get('soluong')??5;
-                $quans= $this->quanService->getListQuansByTrangthaiVaPage(1, $soluong);
+                $quans= $this->quanService->getListQuansByTrangthaiVaPage(Quan::ACTIVE_QUAN, $soluong);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -334,7 +334,7 @@ class QuanController extends Controller
             $admin = $this->checkTokenService->checkTokenAdmin($request);
             if ($admin) {
                 $soluong = $request->get('soluong') ?? 5;
-                $quans = $this->quanService->getListQuansByTrangthaiVaPage(0, $soluong);
+                $quans = $this->quanService->getListQuansByTrangthaiVaPage(Quan::INACTIVE_QUAN, $soluong);
                  return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
@@ -390,7 +390,7 @@ class QuanController extends Controller
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'quans' =>  $this->quanService->getListQuansByTokenInnkeeper($innkeeper, 0)
+                'quans' =>  $this->quanService->getListQuansByTokenInnkeeper($innkeeper, Quan::INACTIVE_QUAN)
                 ]);
             } else {
                 return response()->json([
@@ -601,20 +601,9 @@ class QuanController extends Controller
     public function searchListQuans(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'search' => 'required'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => $validator->errors()
-                ]);
-            }
-            $quans = $this->quanService->searchListQuans($request->get("search"));
+            $quans = $this->quanService->searchListQuans(Quan::ACTIVE_QUAN,$request->get("search"));
             if (count($quans) == 0) {
-                $quans = $this->quanService->searchListQuans1($request->get("search"));
+                $quans = $this->quanService->searchListQuans1(Quan::ACTIVE_QUAN,$request->get("search"));
             }
             return response()->json([
                 'status'  => true,

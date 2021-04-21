@@ -37,6 +37,7 @@ class UserController extends Controller
 
             $tonken = $this->checkTokenService->checkTokenAdmin($request);
             if ($tonken) {
+                // dd($request->all());
                 $users = $this->userService->searchUsersByAdmin($request->get('role'),$request->get('search'));
             
                 return response()->json([
@@ -298,16 +299,24 @@ class UserController extends Controller
             }
             $checktoken = $this->checkTokenService->checkTokenUser($request);
             if ($checktoken) {
+                $tonken= $this->userService->editUserByToken($request, $checktoken->id);
+                if (!$tonken) {
+                    return response()->json([
+                        'status' => false,
+                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => "chỉnh sữa đã bị lỗi"
+                    ]);    
+                }
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'token' => $this->userService->editUserByToken($request,$checktoken->id)
+                    'token' => $tonken
                 ]);
             } else {
                 return response()->json([
                     'status' => false,
                     'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => "token not found"
+                    'message' =>"token của bạn không đúng"
                 ]);
             }
         

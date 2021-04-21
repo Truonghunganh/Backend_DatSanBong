@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Quan extends Model
 {
+    const ACTIVE_QUAN = 1;
+    const INACTIVE_QUAN = 0;
     use HasFactory;
     protected $fillable = [
         'id',        

@@ -29,17 +29,12 @@ class CheckTokenService
     public function checkTokenUser($request)
     {
         try {
-            $token=$request->header('token');
+            $token = $request->header('token');
             if (!$token) {
                 return false;
             }
-            // $user=User::find($request->header('id'));
-            // if ($user->token==$token) {
-            //     return $user;
-            // }
-            // return false;
-            return User::where('role', '=', "user")->where('token', $token)->first();
-            
+            return User::select("id","name", "phone", "gmail","address", "role")->where('role', '=', "user")->where('token', $token)->first();
+        
         } catch (\Exception $e) {
             return false;
         }
@@ -51,12 +46,11 @@ class CheckTokenService
             if (!$token) {
                 return false;
             }
-            return User::where('token', $token)->first();
+            return User::select("id", "name","phone","gmail","address", "role")-> where('token',"=", $token)->first();
         } catch (\Exception $e) {
             return false;
         }
     }
-
     public function checkTokenAdmin($request)
     {
         try {
@@ -64,7 +58,7 @@ class CheckTokenService
             if (!$token) {
                 return false;
             }
-            return User::where('role', '=', "admin")->where('token', $token)->first();
+            return User::select("id", "name", "phone", "gmail","address", "role")->where('role', '=', "admin")->where('token', $token)->first();
         } catch (\Exception $e) {
             return false;
         }
@@ -80,15 +74,15 @@ class CheckTokenService
             if (!$token) {
                 return false;
             }
-            return User::where('role', '=', "innkeeper")->where('token', $token)->first();
+            return User::select("id", "name", "phone", "gmail", "address", "role")->where('role', '=', "innkeeper")->where('token', $token)->first();
         } catch (\Exception $e) {
             return false;
         }
+    
     }
 
     public function checkTokenInnkeeperAndIdquan($request)
     {
-
         try {
             $token = $request->header('token');
             if (!$token) {

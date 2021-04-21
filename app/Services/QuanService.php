@@ -23,18 +23,27 @@ class QuanService
        
        
     }
-    public function searchListQuans($search){
-        return Quan::where('name','like','%' . $search.'%')->orwhere('address','like','%' . $search.'%')->orwhere('phone', 'like', '%' . $search . '%')->get();
+    public function searchListQuans($trangthai,$search){
+        return DB::table("quans")->where('trangthai',"=",$trangthai)
+        ->where(function ($query) use ($search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('address', 'like', '%' . $search . '%')
+                  ->orWhere('phone', 'like', '%' . $search . '%');
+        })->get();
+       
     }
-    public function searchListQuans1($search)
+    public function searchListQuans1($trangthai,$search)
     {
-        $quans= Quan::query();
+        $quans=Quan::where("trangthai",$trangthai);
         $mang = explode(" ", $search);
         for ($i=0; $i <count($mang) ; $i++) { 
-            $quans=$quans->where('name', 'like', '%' . $mang[$i] . '%')
-                        ->orwhere('address', 'like', '%' . $mang[$i] . '%')
-                        ->orwhere('phone', 'like', '%' . $mang[$i] . '%');
-        }
+            $a=$mang[$i];
+            $quans->where( function ($query)use ($a) {
+                $query->where('name', 'like', '%' . $a . '%')
+                    ->orwhere('address', 'like', '%' . $a . '%')
+                    ->orwhere('phone', 'like', '%' . $a . '%');
+            });
+        };
         return $quans->get();
     }
 

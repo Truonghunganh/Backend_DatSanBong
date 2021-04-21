@@ -245,11 +245,12 @@ class DatSanController extends Controller
 
                 date_default_timezone_set("Asia/Ho_Chi_Minh");
                 $time = date('Y-m-d H:i:s');
-                if($time>$datsan->start_time){
+                $time = strftime("%Y-%m-%d %H:%M:%S", strtotime(date("Y-m-d H:i:s", strtotime($time)) . "+1 days"));
+                if($time>$datsan->start_time&& $datsan->xacnhan){
                     return response()->json([
                         'status' => false,
                         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => "không thể xóa được vì thời gian đặt sân phải lớn hơn thời gian hiền tại"
+                        'message' => "không thể xóa được vì thời gian hủy đặt sân phải trước 1 ngày"
                     ]);
                 }
                 $ds= $this->datSanService->deleteDatsan($id,$san,$datsan);
