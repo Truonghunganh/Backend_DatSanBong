@@ -69,6 +69,17 @@ class QuanService
     public function getListQuansByTrangthaiVaPage($trangthai,$soluong){
         return Quan::where('trangthai',$trangthai)->paginate($soluong);
     }
+    public function suaSoDienThoai($phone,$phoneNew){
+        DB::beginTransaction();
+        try {
+            DB::update('update quans set phone = ? where phone = ?', [$phoneNew,$phone]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
+        
+    }
     public function getListQuansByTrangthai($trangthai,$iduser)
     {
         DB::beginTransaction();

@@ -7,6 +7,7 @@ use App\Models\Models\DoanhThu;
 use App\Services\QuanService;
 use App\Services\SanService;
 use App\Services\UserService;
+use App\Models\Models\San;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\Models\Quan;
@@ -91,6 +92,16 @@ class DatSanService
     {
         date_default_timezone_set("Asia/Ho_Chi_Minh");
         $time = date('Y-m-d H:i:s');
+        // return DatSan::orderBy('start_time', 'asc')
+        // ->where('iduser', $iduser)->where('start_time', '>=', $time)->join("sans","datsans.idsan",'sans.id')->join("quans","sans.idquan","quans.id")->get();
+        
+        // return DatSan::select('id', 'start_time', "price", "xacnhan")->orderBy('start_time', 'desc')
+        //     ->where('iduser', $iduser)->where('start_time', '>=', $time)->where(function ($query) {
+
+        //     San::select("trangthai")->where("id","=", $query->idsan)->first()->where(function ($query) {
+        //         Quan::select("name", 'phone', 'address')->where('id','=', $query->idquan);
+        //     });
+        // })->get();
         
         $listdatsanByiduser= DB::table('datsans')->where('iduser', $iduser)->where('start_time','>=', $time)->get();
         $sans= DB::table('sans')->get();
@@ -111,7 +122,16 @@ class DatSanService
                     break;
                 }
             }
-            $datsan=new datsanS($listdatsanByiduser[$i]->id,$quan->name,$quan->address,$quan->phone,$san->name,$listdatsanByiduser[$i]->start_time,$san->numberpeople,$listdatsanByiduser[$i]->price,$listdatsanByiduser[$i]->xacnhan,$san->trangthai);
+            $datsan=new datsanS($listdatsanByiduser[$i]->id,
+                    $quan->name,
+                    $quan->address,
+                    $quan->phone,
+                    $san->name,
+                    $listdatsanByiduser[$i]->start_time,
+                    $san->numberpeople,
+                    $listdatsanByiduser[$i]->price,
+                    $listdatsanByiduser[$i]->xacnhan
+                    ,$san->trangthai);
             array_push($mangdatsantruocngayhientai,$datsan);
         }
         $keys = array_column($mangdatsantruocngayhientai, 'time');

@@ -6,11 +6,15 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 //use JWTAuth;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Models\User;
-
+use App\Services\QuanService;
 use Illuminate\Support\Facades\DB;
 
 class UserService
 {
+    protected $quanService;
+    public function __construct(QuanService $quanService){
+        $this->quanService = $quanService;
+    }
     public function getListDatSanByIduser($request)
     {
         if ($request->get("iduser")) {
@@ -22,15 +26,6 @@ class UserService
         $user = DB::table('users')->where('id', $id)->first();
         return new User1($user->id, $user->name, $user->phone, $user->gmail, $user->address);
     }
-    public function getListUsers($users)
-    {
-        $usersnew = [];
-        for ($i = 0; $i < count($users); $i++) {
-            $user=new User1($users[$i]->id, $users[$i]->name, $users[$i]->phone, $users[$i]->gmail, $users[$i]->address);
-            array_push($usersnew,$user);
-        }
-        return $usersnew;
-    }
     
     public function getUserByUser($user)
     {
@@ -38,7 +33,7 @@ class UserService
     }
     public function getUserByAdmin($user,$soluong=10)
     {
-        return User::where("role",$user)->paginate($soluong);
+        return User::select('id', 'name', 'address', 'phone', 'gmail')->where("role",$user)->paginate($soluong);
     }
     public function searchUsersByAdmin($role,$search){
         $users= User::select(["id", "name", "phone", "gmail", "address"])->where("role", "=", $role)->where(function($query) use ($search) {
@@ -57,6 +52,10 @@ class UserService
             date_default_timezone_set("Asia/Ho_Chi_Minh");
             $time = date('Y-m-d H:i:s');
             $token = "";
+            $user= User::where("id", "=", $id)->first();
+            if ($user->role=="innkeeper") {
+                $this->quanService->suaSoDienThoai($user->phone,$request->get("phone"));
+            }
             DB::update(
                 'update users set name=?,phone=?,gmail=?,address=?,password=?,Create_time=? where id = ?',
                 [

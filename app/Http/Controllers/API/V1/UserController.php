@@ -84,7 +84,7 @@ class UserController extends Controller
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'users' =>  $this->userService->getListUsers($users->items()),
+                    'users' =>  $users->items(),
                     'tongpage' => $users->lastPage()
                 ]);                
             } else {
