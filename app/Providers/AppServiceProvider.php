@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Contracts\View\View;
+//use Illuminate\Contracts\View\View;
 
-//use App\Setting;
+use App\Settings;
 
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,8 +19,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton(Settings::class, function () {
+            return Settings::make(storage_path('app/settings.json'));
+        });
     }
+
+    // public function register()
+    // {
+    //     //
+    // }
 
     /**
      * Bootstrap any application services.
@@ -28,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        view()->share('key', true);
+        View::share('key', true);
         // view()->composer('*', function (View $view) {
         //     $site_settings = Setting::all();
         //     $view->with('site_settings', $site_settings);

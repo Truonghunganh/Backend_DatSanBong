@@ -217,13 +217,11 @@ class QuanController extends Controller
         try {
             $admin = $this->checkTokenService->checkTokenAdmin($request);
             if ($admin) {
-                $soluong=$request->get('soluong')??5;
-                $quans= $this->quanService->getListQuansByTrangthaiVaPage(Quan::ACTIVE_QUAN, $soluong);
+                $quans= $this->quanService->getAllQuansByTrangthai(Quan::ACTIVE_QUAN);
                 return response()->json([
                     'status' => true,
                     'code' => Response::HTTP_OK,
-                    'quans' => $quans->items(),
-                    'tongpage'=>$quans->lastPage()
+                    'quans' => $quans,
                 ]);
             } else {
                 return response()->json([

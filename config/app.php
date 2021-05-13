@@ -2,7 +2,7 @@
 
 return [
 
-    'checkdatsan' =>true,
+    'checkdatsan' =>1,
     /*
     |--------------------------------------------------------------------------
     | Application Name

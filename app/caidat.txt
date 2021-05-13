@@ -11,6 +11,8 @@ là tạo ra UserController có tất cả các phương thức ( là cái mẫu
 - Xóa tất cả các bảng : (chạy hàm down())
 
 
+
+
 a.	Trong larevel có 7 phương thức
 -	Index() :nó đại diện cho hiển thị danh sách của đối tượng đó
 -	Create() nó đại diện cho cái màng hình create , khi mà ta load cái form create lên 

@@ -12,6 +12,7 @@ use App\Services\SanService;
 use App\Services\QuanService;
 use App\Services\DoanhThuService;
 use App\Services\ReviewService;
+use App\Settings;
 
 class DatSanController extends Controller 
 {
@@ -20,13 +21,16 @@ class DatSanController extends Controller
     protected $checkTokenService;
     protected $doanhThuService;
     protected $reviewService;
+    protected $settings;
+    private $checkddatsan;
     public function __construct(
         DatSanService $datSanService,
         CheckTokenService $checkTokenService,
         SanService $sanService, 
         QuanService $quanService,
         DoanhThuService $doanhThuService,
-        ReviewService $reviewService
+        ReviewService $reviewService, 
+        Settings $settings
         ){
         $this->datSanService = $datSanService;
         $this->checkTokenService = $checkTokenService;
@@ -34,42 +38,13 @@ class DatSanController extends Controller
         $this->quanService = $quanService;
         $this->doanhThuService = $doanhThuService;
         $this->reviewService = $reviewService;
-    }
-    protected  $checkddatsan=true;
-    public function addDatSan(Request $request){
-        $iduser=$request->get('iduser');
-        if ($this->checkddatsan) {
-            $this->checkddatsan = false;
-            $datsan = $this->datSanService->addDatSan($request, $iduser);
-            if ($datsan) {
-                $this->checkddatsan = true;
-                return response()->json([
-                    'status'  => true,
-                    'code'    => Response::HTTP_OK,
-                    'datsan' => $datsan
-                ]);
-            } else {
-                $this->checkddatsan = true;
-                return response()->json([
-                    'status' => false,
-                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => "bạn đã đặt sân thất bại"
-                ]);
-            }
-        } else {
-            return response()->json([
-                'status' => false,
-                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => "bạn đã đặt sân thất bại"
-            ]);
-        }
+        $this->settings = $settings;
     }
     // show là add data lên (để thêm vào)
     public function store(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                
+            $validator = Validator::make($request->all(), [            
                 'idsan' => 'required',
                 'price'=> 'required',
                 'start_time' => 'required',
@@ -82,33 +57,31 @@ class DatSanController extends Controller
                     'message' => $validator->errors()
                 ]);
             }
-
+            date_default_timezone_set("Asia/Ho_Chi_Minh");
+            $time = date('Y-m-d H:i:s');
+            if ($request->get('start_time') < $time) {
+                return response()->json([
+                    'status' => false,
+                    'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => "bạn phải đặt Trước thời gian hiện tại",
+                ]);
+            }
+            
             $tonkenUser=$this->checkTokenService->checkTokenUser($request);
             if($tonkenUser){
-                date_default_timezone_set("Asia/Ho_Chi_Minh");
-                $time = date('Y-m-d H:i:s');
-
-                if ($request->get('start_time') < $time) {
-                    return response()->json([
-                        'status' => false,
-                        'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                        'message' => "bạn phải đặt Trước thời gian hiện tại",
-                    ]);
-
-                }
-                
+                $this->checkddatsan= $this->settings->get("checkdatsan");
                 if ($this->checkddatsan) {
-                    $this->checkddatsan = false;
+                    $this->settings->put('checkdatsan', false);
                     $datsan = $this->datSanService->addDatSan($request, $tonkenUser->id);
                     if ($datsan) {
-                        $this->checkddatsan = true;
+                       $this->settings->put('checkdatsan', true);
                         return response()->json([
                             'status'  => true,
                             'code'    => Response::HTTP_OK,
                             'datsan' => $datsan
                         ]);
                     } else {
-                        $this->checkddatsan = true;
+                        $this->settings->put('checkdatsan', true);
                         return response()->json([
                             'status' => false,
                             'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -132,7 +105,7 @@ class DatSanController extends Controller
 
             }
         } catch (\Exception $e) {
-            $this->checkddatsan=true;
+            $this->settings->put('checkdatsan', true);
             return response()->json([
                 'status' => false,
                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,

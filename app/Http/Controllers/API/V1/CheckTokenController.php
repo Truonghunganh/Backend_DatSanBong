@@ -13,22 +13,48 @@ use App\Models\Models\DatSan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-
+use App\Providers\Facility;
+use App\Settings;
 
 class CheckTokenController extends Controller
 {
+    protected $settings;
     protected $checkTokenService;
     protected $sanService;
     protected $quanService;
-    public function __construct(CheckTokenService $checkTokenService,SanService $sanService, QuanService $quanService)
+    public function __construct(CheckTokenService $checkTokenService,
+            SanService $sanService, 
+            QuanService $quanService,
+            Settings $settings
+            )
     {
         $this->checkTokenService = $checkTokenService;
         $this->sanService = $sanService;
         $this->quanService = $quanService;
-    }
-    public function thu(Request $request)
-    {
+        $this->settings = $settings;
 
+    }
+    public static $b=1;
+    public $a=1;
+    public function getB(){
+        self::$b++;
+        return self::$b;
+    }
+    public  function  thu(Request $request)
+    {
+        $c=$this->settings->get("checkdatsan")+1;
+        $this->settings->put('checkdatsan', $c);
+        return $this->settings->get('checkdatsan');
+
+        return $this->getB();
+        $this->a= config('app.checkdatsan')+1;
+        config(['app.checkdatsan' => $this->a]);
+        return config('app.checkdatsan') ;
+    
+    
+    
+    
+    
         date_default_timezone_set("Asia/Ho_Chi_Minh");
         $time = date('Y-m-d H:i:s');
         //  $week = strtotime(date("Y-m-d H:i:s", strtotime($time)) . " -1 days");

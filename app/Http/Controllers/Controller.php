@@ -15,6 +15,12 @@ use App\Setting;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    // public function __construct()
+    // {
+    //     // Fetch the Site Settings object
+    //     // $site_settings = Setting::all();
+    //     // View::share('site_settings', $site_settings);
+    // }
     public function __construct()
     {
         // Fetch the Site Settings object
