@@ -209,8 +209,7 @@ class QuanController extends Controller
                 'status' => false,
                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
                 'message' => $e1->getMessage()
-            ]);
-            
+            ]);            
         }
     }
     public function getListQuansDaPheDuyetByTokenAdmin(Request $request)
