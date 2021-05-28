@@ -14,12 +14,14 @@ class CreateReviewsTable extends Migration
     public function up()
     {
         Schema::create('reviews', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->bigInteger('iduser');
-            $table->bigInteger('idquan');
+            $table->increments('id');
+            $table->integer('iduser')->unsigned();
+            $table->integer('idquan')->unsigned();
             $table->integer('review');
             $table->dateTime('Review_time');
-            
+            $table->foreign('iduser')->references('id')->on('users');
+            $table->foreign('idquan')->references('id')->on('quans');
+          
         });
     }
 

@@ -17,28 +17,28 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // \App\Models\User::factory(10)->create();
-        // $this->call([
-        //      //UserTableSeeder::class,
-        //     // QuanTableSeeder::class,
-        //     // SanTableSeeder::class,
-        //     //DatSanTableSeeder::class, 
-        // ]);
-        $a=true;
-        for ($i=0; $i < 2; $i++) { 
-            if($a){
-                $a=false;
-                $datsan = DatSan::where('idsan', 1)->where('start_time', "2021-03-30 12:00:00")->first();
-                if ($datsan) {
-                    return  false;
-                }
-                date_default_timezone_set("Asia/Ho_Chi_Minh");
-                $time = date('Y-m-d H:i:s');
-                $ds=DB::insert('insert into datsans (idsan, iduser,start_time,price,xacnhan,Create_time) values (?, ?,?,?, ?,?)',
-                 [1,1,"2021-03-30 12:00:00",150000,false,$time]);
+        $this->call([
+            //  UserTableSeeder::class,
+            // QuanTableSeeder::class,
+            // SanTableSeeder::class,
+            DatSanTableSeeder::class, 
+        ]);
+        // $a=true;
+        // for ($i=0; $i < 2; $i++) { 
+        //     if($a){
+        //         $a=false;
+        //         $datsan = DatSan::where('idsan', 1)->where('start_time', "2021-03-30 12:00:00")->first();
+        //         if ($datsan) {
+        //             return  false;
+        //         }
+        //         date_default_timezone_set("Asia/Ho_Chi_Minh");
+        //         $time = date('Y-m-d H:i:s');
+        //         $ds=DB::insert('insert into datsans (idsan, iduser,start_time,price,xacnhan,Create_time) values (?, ?,?,?, ?,?)',
+        //          [1,1,"2021-03-30 12:00:00",150000,false,$time]);
                 
                 
-            }
-        }
+        //     }
+        //}
     }
 }
 

@@ -9,14 +9,15 @@ class CreateSansTable extends Migration
     public function up()
     {
         Schema::create('sans', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->bigInteger('idquan');
+            $table->increments('id');
+            $table->integer('idquan')->unsigned();
             $table->string('name');
             $table->integer('numberpeople');
             $table->boolean('trangthai');
             $table->bigInteger('priceperhour');
             $table->dateTime('Create_time');
-            
+            $table->foreign('idquan')->references('id')->on('quans');
+          
         });
     }
     public function down()
